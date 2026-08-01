@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <meta name="app-version" content="8.8.30">
+    <meta name="app-version" content="8.8.31">
     
     <title>Арт. баллистический калькулятор</title>
     
@@ -41,6 +41,9 @@
             overflow-x: hidden;
         }
         
+        /* ==========================================
+           ЭКРАН ЗАГРУЗКИ
+           ========================================== */
         #loading-screen {
             position: fixed;
             top: 0;
@@ -124,6 +127,116 @@
             margin-top: 16px;
         }
         
+        /* ==========================================
+           ЭКРАН ОБНОВЛЕНИЯ (НЕЗАКРЫВАЕМЫЙ)
+           ========================================== */
+        #update-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #4B5320;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+            padding: 20px;
+        }
+        
+        #update-screen.active {
+            display: flex;
+        }
+        
+        .update-card {
+            background: white;
+            border-radius: 28px;
+            padding: 32px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .update-card .icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+        
+        .update-card h2 {
+            color: #c44536;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .update-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+            line-height: 1.6;
+        }
+        
+        .update-card .version-info {
+            background: #f1f3f5;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        
+        .update-card .version-info span {
+            display: block;
+            color: #1e2b3a;
+            font-weight: 600;
+        }
+        
+        .update-card .version-info .new {
+            color: #2a9d8f;
+        }
+        
+        .update-card .btn {
+            width: 100%;
+            padding: 16px;
+            background: #1e2b3a;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .update-card .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .update-card .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .update-card .btn-restart {
+            background: #c44536;
+            margin-top: 8px;
+        }
+        
+        .update-card .progress-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 12px;
+        }
+        
+        .update-card .lock-icon {
+            font-size: 14px;
+            color: #c44536;
+            margin-top: 12px;
+            display: block;
+        }
+        
+        /* ==========================================
+           ЭКРАН ВХОДА
+           ========================================== */
         #login-screen {
             position: fixed;
             top: 0;
@@ -259,6 +372,9 @@
             border-top: 1px solid #eee;
         }
         
+        /* ==========================================
+           ОСНОВНОЙ КАЛЬКУЛЯТОР
+           ========================================== */
         #app-container {
             display: none;
             max-width: 480px;
@@ -816,7 +932,29 @@
         <div class="progress-bar">
             <div class="fill" id="progress-fill"></div>
         </div>
-        <div class="version" id="loading-version">Версия: 8.8.</div>
+        <div class="version" id="loading-version">Версия: 8.8.31</div>
+    </div>
+</div>
+
+<!-- ЭКРАН ОБНОВЛЕНИЯ (НЕЗАКРЫВАЕМЫЙ) -->
+<div id="update-screen">
+    <div class="update-card">
+        <div class="icon">🔄</div>
+        <h2>⚠️ Доступно обновление!</h2>
+        <p>Почистите кэш и перезапустите приложение</p>
+        
+        <div class="version-info">
+            <span>Текущая версия: <span id="update-current-version">8.8.31</span></span>
+            <span class="new">Новая версия: <span id="update-new-version">8.8.31</span></span>
+        </div>
+        
+        <button class="btn btn-restart" id="update-btn" onclick="restartApp()">
+            🔄 Почистить кэш и перезапустить
+        </button>
+        
+        <div class="progress-text" id="update-status"></div>
+        
+        <span class="lock-icon">🔒 Обновление обязательно для продолжения работы</span>
     </div>
 </div>
 
@@ -848,7 +986,7 @@
 <!-- БАННЕР ЗАЩИТЫ ОТ ОБНОВЛЕНИЯ -->
 <div class="update-protection-banner" id="update-banner">
     <i class="fas fa-info-circle"></i>
-    Приложение обновляется автоматически при перезапуске
+    Приложение обновляется автоматически
 </div>
 
 <!-- КАЛЬКУЛЯТОР -->
@@ -989,7 +1127,7 @@
             </div>
         </div>
         
-        <div class="version-info" id="appVersionDisplay">Версия: 8.8.30</div>
+        <div class="version-info" id="appVersionDisplay">Версия: 8.8.31</div>
         
         <footer>Создан Романовым А. В. / моб. версия</footer>
     </div>
@@ -7447,122 +7585,66 @@ const mortarData = {
 // ==================== ВЕРСИЯ ПРИЛОЖЕНИЯ ============================
 // ====================================================================
 
-const APP_VERSION = '8.8.30';
+const APP_VERSION = '8.8.31';
 
 // ====================================================================
-// ==================== СИСТЕМА АВТООБНОВЛЕНИЙ =======================
+// ==================== СИСТЕМА ОБНОВЛЕНИЙ ===========================
 // ====================================================================
 
-class AutoUpdateManager {
+class UpdateManager {
     constructor() {
         this.VERSION_URL = 'https://raw.githubusercontent.com/chanatri1-stack/test-ArtBallCalc/main/version.json';
         this.CURRENT_VERSION = APP_VERSION;
-        this.updateCheckInterval = 3600000; // 1 час
-        this.isUpdating = false;
     }
     
     // ==========================================
-    // ОСНОВНАЯ ФУНКЦИЯ ЗАПУСКА
-    // ==========================================
-    async run() {
-        try {
-            // ШАГ 1: Очистка кэша
-            updateProgress('🧹 Очистка кэша...', 10);
-            await this.clearCache();
-            updateProgress('✅ Кэш очищен', 20);
-            
-            // ШАГ 2: Проверка обновлений (АВТОМАТИЧЕСКАЯ)
-            updateProgress('🔍 Проверка обновлений...', 30);
-            const hasUpdate = await this.checkForUpdate();
-            
-            // ШАГ 3: Если есть обновление - АВТОУСТАНОВКА
-            if (hasUpdate) {
-                updateProgress('📥 Установка обновления...', 60);
-                await this.installUpdate();
-                return; // После обновления приложение перезагрузится
-            }
-            
-            // ШАГ 4: Если обновлений нет - продолжаем
-            updateProgress('✅ Готово', 100);
-            this.showApp();
-            
-        } catch(e) {
-            console.error('Ошибка запуска:', e);
-            // При ошибке всё равно показываем приложение
-            this.showApp();
-        }
-    }
-    
-    // ==========================================
-    // ПРОВЕРКА ОБНОВЛЕНИЯ
+    // ПРОВЕРКА ОБНОВЛЕНИЙ
     // ==========================================
     async checkForUpdate() {
         try {
             const response = await fetch(this.VERSION_URL + '?t=' + Date.now());
             
             if (!response.ok) {
-                return false;
+                return { hasUpdate: false };
             }
             
             const data = await response.json();
             
-            // Сравниваем версии
             const hasUpdate = this.compareVersions(this.CURRENT_VERSION, data.version) < 0;
             
-            if (hasUpdate) {
-                console.log('🔄 Найдено обновление:', data.version);
-                localStorage.setItem('new_version', data.version);
-                localStorage.setItem('update_url', data.updateUrl || this.VERSION_URL);
-            }
-            
-            return hasUpdate;
+            return {
+                hasUpdate: hasUpdate,
+                currentVersion: this.CURRENT_VERSION,
+                newVersion: data.version || 'неизвестно'
+            };
             
         } catch(e) {
             console.error('Ошибка проверки обновлений:', e);
-            return false;
+            return { hasUpdate: false };
         }
     }
     
-    // ==========================================
-    // АВТОУСТАНОВКА ОБНОВЛЕНИЯ
-    // ==========================================
-    async installUpdate() {
-        if (this.isUpdating) return;
-        this.isUpdating = true;
+    compareVersions(v1, v2) {
+        const parts1 = v1.split('.').map(Number);
+        const parts2 = v2.split('.').map(Number);
         
-        try {
-            // Очищаем кэш перед обновлением
-            await this.clearCache();
-            
-            // Сохраняем важные данные
-            const importantData = {
-                email: localStorage.getItem('user_email'),
-                pin: localStorage.getItem('user_pin'),
-                access: localStorage.getItem('email_access_data')
-            };
-            
-            // Перезагружаем страницу (загрузится новая версия)
-            updateProgress('🔄 Перезагрузка...', 90);
-            
-            // Небольшая задержка для отображения прогресса
-            await this.sleep(1000);
-            
-            // Полная перезагрузка без кэша
-            location.reload(true);
-            
-        } catch(e) {
-            console.error('Ошибка установки обновления:', e);
-            // Если ошибка - просто перезагружаем
-            location.reload(true);
+        for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+            const n1 = parts1[i] || 0;
+            const n2 = parts2[i] || 0;
+            if (n1 !== n2) return n1 - n2;
         }
+        return 0;
     }
     
     // ==========================================
-    // ОЧИСТКА КЭША
+    // ОЧИСТКА КЭША И ПЕРЕЗАПУСК
     // ==========================================
-    async clearCache() {
+    async clearCacheAndRestart() {
         try {
-            // Очищаем Service Worker кэш
+            document.getElementById('update-status').textContent = '🧹 Очистка кэша...';
+            document.getElementById('update-btn').disabled = true;
+            
+            // Очищаем все кэши
             if ('caches' in window) {
                 const keys = await caches.keys();
                 for (const key of keys) {
@@ -7580,56 +7662,26 @@ class AutoUpdateManager {
             
             localStorage.clear();
             
-            // Восстанавливаем важные данные
             for (const [key, value] of Object.entries(toKeep)) {
                 localStorage.setItem(key, value);
             }
             
-            console.log('✅ Кэш очищен');
+            document.getElementById('update-status').textContent = '🔄 Перезагрузка...';
+            
+            setTimeout(() => {
+                location.reload(true);
+            }, 1000);
             
         } catch(e) {
-            console.error('Ошибка очистки кэша:', e);
+            console.error('Ошибка:', e);
+            document.getElementById('update-status').textContent = '❌ Ошибка. Перезагрузите вручную.';
+            document.getElementById('update-btn').disabled = false;
         }
-    }
-    
-    // ==========================================
-    // ВСПОМОГАТЕЛЬНЫЕ ФУНКЦИИ
-    // ==========================================
-    compareVersions(v1, v2) {
-        const parts1 = v1.split('.').map(Number);
-        const parts2 = v2.split('.').map(Number);
-        
-        for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
-            const n1 = parts1[i] || 0;
-            const n2 = parts2[i] || 0;
-            if (n1 !== n2) return n1 - n2;
-        }
-        return 0;
-    }
-    
-    sleep(ms) {
-        return new Promise(resolve => setTimeout(resolve, ms));
-    }
-    
-    showApp() {
-        document.getElementById('loading-screen').classList.add('hidden');
-        document.getElementById('login-screen').classList.add('active');
-        
-        // Проверяем автовход
-        const saved = access.getSavedAccess();
-        if (saved) {
-            document.getElementById('email-input').value = saved.email;
-            document.getElementById('pin-input').value = saved.pin;
-            setTimeout(login, 500);
-        }
-        
-        document.getElementById('appVersionDisplay').textContent = 'Версия: ' + APP_VERSION;
-        document.getElementById('loading-version').textContent = 'Версия: ' + APP_VERSION;
     }
 }
 
 // ====================================================================
-// ==================== СИСТЕМА ДОСТУПА ==============================
+// ==================== СИСТЕМА ДОСТУПА (ИСПРАВЛЕННАЯ) ===============
 // ====================================================================
 
 class EmailAccessManager {
@@ -7749,7 +7801,7 @@ class EmailAccessManager {
 // ==================== ГЛАВНАЯ ЛОГИКА ===============================
 // ====================================================================
 
-const autoUpdater = new AutoUpdateManager();
+const updateManager = new UpdateManager();
 const access = new EmailAccessManager();
 
 function updateProgress(text, percent) {
@@ -7758,34 +7810,54 @@ function updateProgress(text, percent) {
 }
 
 // ==========================================
-// ЗАЩИТА ОТ СЛУЧАЙНОГО ОБНОВЛЕНИЯ (БАННЕР)
+// ЗАПУСК ПРИЛОЖЕНИЯ
 // ==========================================
-function setupUpdateProtection() {
-    const banner = document.getElementById('update-banner');
-    let scrollTimeout;
-    let bannerTimeout;
-    
-    document.addEventListener('scroll', function() {
-        banner.classList.add('show');
+async function startApp() {
+    try {
+        // ШАГ 1: Проверка обновлений
+        updateProgress('🔍 Проверка обновлений...', 30);
+        const updateInfo = await updateManager.checkForUpdate();
         
-        clearTimeout(scrollTimeout);
-        scrollTimeout = setTimeout(() => {
-            banner.classList.remove('show');
-        }, 3000);
+        if (updateInfo.hasUpdate) {
+            // Показываем экран обновления (НЕЗАКРЫВАЕМЫЙ)
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('update-screen').classList.add('active');
+            
+            document.getElementById('update-current-version').textContent = updateInfo.currentVersion;
+            document.getElementById('update-new-version').textContent = updateInfo.newVersion;
+            
+            // Убираем возможность закрыть через ESC или клик вне
+            document.getElementById('update-screen').style.pointerEvents = 'auto';
+            
+            return;
+        }
         
-        clearTimeout(bannerTimeout);
-        bannerTimeout = setTimeout(() => {
-            banner.classList.remove('show');
-        }, 5000);
-    }, { passive: true });
-    
-    document.addEventListener('touchstart', function() {
-        banner.classList.add('show');
-        clearTimeout(bannerTimeout);
-        bannerTimeout = setTimeout(() => {
-            banner.classList.remove('show');
-        }, 3000);
-    }, { passive: true });
+        // ШАГ 2: Если обновлений нет - показываем вход
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('login-screen').classList.add('active');
+        
+        // Проверяем автовход
+        const saved = access.getSavedAccess();
+        if (saved) {
+            document.getElementById('email-input').value = saved.email;
+            document.getElementById('pin-input').value = saved.pin;
+            setTimeout(login, 500);
+        }
+        
+        document.getElementById('appVersionDisplay').textContent = 'Версия: ' + APP_VERSION;
+        document.getElementById('loading-version').textContent = 'Версия: ' + APP_VERSION;
+        
+    } catch(e) {
+        console.error('Ошибка запуска:', e);
+        document.getElementById('loading-status').textContent = '❌ Ошибка запуска. Перезагрузите приложение.';
+    }
+}
+
+// ==========================================
+// ПЕРЕЗАПУСК (ОБНОВЛЕНИЕ)
+// ==========================================
+async function restartApp() {
+    await updateManager.clearCacheAndRestart();
 }
 
 // ==========================================
@@ -7832,8 +7904,6 @@ async function login() {
                 document.getElementById('login-screen').classList.remove('active');
                 document.getElementById('login-screen').classList.add('hidden');
                 document.getElementById('app-container').classList.add('active');
-                
-                setupUpdateProtection();
                 
                 if (typeof initializeApp === 'function') {
                     initializeApp();
@@ -7888,9 +7958,9 @@ document.addEventListener('DOMContentLoaded', function() {
     document.getElementById('app-container').classList.remove('active');
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('login-screen').classList.remove('hidden');
+    document.getElementById('update-screen').classList.remove('active');
     
-    // Запускаем автообновление
-    autoUpdater.run();
+    startApp();
 });
 
 // ====================================================================
@@ -8484,7 +8554,12 @@ function initializeApp() {
     validateDistanceInput();
 }
 
+// ====================================================================
+// ==================== ДЕЛАЕМ ФУНКЦИИ ГЛОБАЛЬНЫМИ ==================
+// ====================================================================
+
 window.login = login;
+window.restartApp = restartApp;
 window.initializeApp = initializeApp;
 
 console.log('✅ Артиллерийский калькулятор загружен. Версия: ' + APP_VERSION);
