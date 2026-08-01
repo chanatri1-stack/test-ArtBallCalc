@@ -8,7 +8,7 @@
     <meta http-equiv="Expires" content="0">
     
     <!-- 👇 ВЕРСИЯ ПРИЛОЖЕНИЯ -->
-    <meta name="app-version" content="8.8.28">
+    <meta name="app-version" content="8.8.29">
     
     <title>Арт. баллистический калькулятор</title>
     
@@ -929,7 +929,7 @@
         <div class="progress-bar">
             <div class="fill" id="progress-fill"></div>
         </div>
-        <div class="version" id="loading-version">Версия: 8.8.28</div>
+        <div class="version" id="loading-version">Версия: 8.8.29</div>
     </div>
 </div>
 
@@ -943,7 +943,7 @@
         <p>Новая версия калькулятора готова к установке</p>
         
         <div class="version-info">
-            <span id="update-current-version">Текущая: 8.8.28</span>
+            <span id="update-current-version">Текущая: 8.8.29</span>
             <span id="update-new-version" style="color:#2a9d8f;">Новая: 8.8.29</span>
         </div>
         
@@ -974,6 +974,7 @@
                 id="email-input" 
                 placeholder="example@mail.ru"
                 autocomplete="email"
+                value="Chanatri@yandex.ru"
             >
         </div>
         
@@ -986,6 +987,7 @@
                 maxlength="6"
                 inputmode="numeric"
                 autocomplete="off"
+                value="1111"
             >
         </div>
         
@@ -1149,7 +1151,7 @@
             </div>
         </div>
         
-        <div class="version-info" id="appVersionDisplay">Версия: 8.8.28</div>
+        <div class="version-info" id="appVersionDisplay">Версия: 8.8.29</div>
         
         <footer>Создан Романовым А. В. / моб. версия</footer>
     </div>
@@ -7609,7 +7611,7 @@ const mortarData = {
 // ==================== ВЕРСИЯ ПРИЛОЖЕНИЯ ============================
 // ====================================================================
 
-const APP_VERSION = '8.8.28';
+const APP_VERSION = '8.8.29';
 
 // ====================================================================
 // ==================== СИСТЕМА ОБНОВЛЕНИЙ ===========================
@@ -7722,7 +7724,7 @@ class UpdateManager {
 }
 
 // ====================================================================
-// ==================== СИСТЕМА ДОСТУПА ==============================
+// ==================== СИСТЕМА ДОСТУПА (ИСПРАВЛЕННАЯ) ===============
 // ====================================================================
 
 class EmailAccessManager {
@@ -7741,21 +7743,30 @@ class EmailAccessManager {
             const lines = csv.split('\n');
             const users = [];
             
-            for (let i = 1; i < lines.length; i++) {
+            // Проходим по всем строкам, игнорируем пустые
+            for (let i = 0; i < lines.length; i++) {
                 const line = lines[i].trim();
                 if (!line) continue;
                 
+                // Разбиваем по запятой
                 const parts = line.split(',');
                 
+                // Нам нужно минимум 3 колонки
                 if (parts.length >= 3) {
                     const email = parts[0].trim().toLowerCase();
                     const pin = parts[1].trim();
                     const status = parts[2].trim().toLowerCase();
                     
+                    // Пропускаем строку с заголовками (если есть "почта" и "pin")
+                    if (email === 'почта' || email === 'почтa' || email === 'email' || pin === 'pin' || pin === 'PIN') {
+                        continue;
+                    }
+                    
+                    // Добавляем пользователя
                     users.push({
                         email: email,
                         pin: pin,
-                        active: status === 'разрешен',
+                        active: status === 'разрешен' || status === 'разрешён' || status === 'разрешен' || status === 'разрешён',
                         status: status
                     });
                 }
@@ -7779,6 +7790,10 @@ class EmailAccessManager {
         
         const whitelist = await this.getWhitelist();
         
+        // Отладочная информация
+        console.log('📋 Список пользователей:', whitelist);
+        console.log('🔍 Ищем:', email);
+        
         const user = whitelist.find(u => u.email === email);
         
         if (!user) {
@@ -7786,7 +7801,7 @@ class EmailAccessManager {
         }
         
         if (!user.active) {
-            return { success: false, message: '❌ Доступ запрещен' };
+            return { success: false, message: '❌ Доступ запрещен (статус: ' + user.status + ')' };
         }
         
         if (user.pin !== pin) {
@@ -7909,23 +7924,19 @@ function setupUpdateProtection() {
     let bannerTimeout;
     
     document.addEventListener('scroll', function() {
-        // Показываем баннер при скролле
         banner.classList.add('show');
         
-        // Скрываем баннер через 3 секунды после остановки скролла
         clearTimeout(scrollTimeout);
         scrollTimeout = setTimeout(() => {
             banner.classList.remove('show');
         }, 3000);
         
-        // Если баннер виден долго - скрываем через 5 секунд
         clearTimeout(bannerTimeout);
         bannerTimeout = setTimeout(() => {
             banner.classList.remove('show');
         }, 5000);
     }, { passive: true });
     
-    // Также показываем при первом касании (для мобильных)
     document.addEventListener('touchstart', function() {
         banner.classList.add('show');
         clearTimeout(bannerTimeout);
@@ -8059,12 +8070,10 @@ document.addEventListener('keydown', function(e) {
 // ЗАПУСК
 // ==========================================
 document.addEventListener('DOMContentLoaded', function() {
-    // Скрываем всё лишнее
     document.getElementById('app-container').classList.remove('active');
     document.getElementById('login-screen').classList.remove('active');
     document.getElementById('login-screen').classList.remove('hidden');
     
-    // Запускаем приложение
     startApp();
 });
 
@@ -8628,7 +8637,6 @@ function initializeApp() {
 
     document.getElementById('share-history-btn').addEventListener('click', window.shareHistory);
 
-    // Обработчики для списка орудий
     document.getElementById('weapon-btn').addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -8668,14 +8676,6 @@ window.login = login;
 window.installUpdate = installUpdate;
 window.skipUpdate = skipUpdate;
 window.initializeApp = initializeApp;
-window.closeModal = function() { document.getElementById('detail-modal').style.display = 'none'; };
-window.closeQRModal = function() { document.getElementById('qr-modal').style.display = 'none'; };
-window.shareHistory = function() { 
-    // Функция будет доступна после инициализации
-    if (typeof window._shareHistory === 'function') {
-        window._shareHistory();
-    }
-};
 
 console.log('✅ Артиллерийский калькулятор загружен. Версия: ' + APP_VERSION);
 console.log('📝 Для заполнения данных отредактируйте mortarData и flatData в коде.');
