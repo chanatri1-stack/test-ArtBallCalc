@@ -6,13 +6,22 @@
     <meta http-equiv="Cache-Control" content="no-cache, no-store, must-revalidate">
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
+    
+    <!-- 👇 ВЕРСИЯ ПРИЛОЖЕНИЯ -->
+    <meta name="app-version" content="8.8.28">
+    
     <title>Арт. баллистический калькулятор</title>
+    
     <style>
+        /* ==========================================
+           ОБЩИЕ СТИЛИ
+           ========================================== */
         * {
             margin: 0;
             padding: 0;
             box-sizing: border-box;
         }
+        
         :root {
             --primary: #1e2b3a;
             --secondary: #4B5320;
@@ -26,13 +35,349 @@
             --red-poly: #b23b2c;
             --orange: #f4a261;
         }
+        
         body {
             font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
             background: #4B5320;
             color: #000000;
             min-height: 100vh;
             padding: 8px;
+            overflow-x: hidden;
         }
+        
+        /* ==========================================
+           ЭКРАН ЗАГРУЗКИ
+           ========================================== */
+        #loading-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #4B5320;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            z-index: 10000;
+            padding: 20px;
+        }
+        
+        #loading-screen.hidden {
+            display: none;
+        }
+        
+        .loading-card {
+            background: white;
+            border-radius: 28px;
+            padding: 32px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .loading-card .spinner {
+            width: 60px;
+            height: 60px;
+            margin: 0 auto 16px;
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #1e2b3a;
+            border-radius: 50%;
+            animation: spin 1s linear infinite;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .loading-card h2 {
+            color: #1e2b3a;
+            font-size: 20px;
+            margin-bottom: 4px;
+        }
+        
+        .loading-card .subtitle {
+            color: #666;
+            font-size: 14px;
+        }
+        
+        .loading-card .progress-text {
+            color: #999;
+            font-size: 13px;
+            margin-top: 12px;
+        }
+        
+        .loading-card .progress-bar {
+            width: 100%;
+            height: 4px;
+            background: #f1f3f5;
+            border-radius: 4px;
+            margin-top: 8px;
+            overflow: hidden;
+        }
+        
+        .loading-card .progress-bar .fill {
+            height: 100%;
+            background: #1e2b3a;
+            border-radius: 4px;
+            width: 0%;
+            transition: width 0.3s;
+        }
+        
+        .loading-card .version {
+            font-size: 11px;
+            color: #ccc;
+            margin-top: 16px;
+        }
+        
+        /* ==========================================
+           ЭКРАН ВХОДА
+           ========================================== */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #4B5320;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        
+        #login-screen.active {
+            display: flex;
+        }
+        
+        #login-screen.hidden {
+            display: none;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 28px;
+            padding: 32px 24px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .login-card .icon {
+            font-size: 56px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .login-card h2 {
+            text-align: center;
+            color: #1e2b3a;
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        
+        .login-card .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        
+        .login-card .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .login-card .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e2b3a;
+            margin-bottom: 4px;
+        }
+        
+        .login-card .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #ced4da;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: all 0.2s;
+            background: #f8f9fa;
+        }
+        
+        .login-card .input-group input:focus {
+            outline: none;
+            border-color: #1e2b3a;
+            background: white;
+        }
+        
+        .login-card .input-group input.error {
+            border-color: #c44536;
+            background: #fff2f0;
+        }
+        
+        .login-card .btn {
+            width: 100%;
+            padding: 16px;
+            background: #1e2b3a;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        
+        .login-card .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .login-card .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .login-card .status {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 12px;
+            min-height: 24px;
+        }
+        
+        .login-card .status.success {
+            color: #2a9d8f;
+        }
+        
+        .login-card .status.error {
+            color: #c44536;
+        }
+        
+        .login-card .status.loading {
+            color: #666;
+        }
+        
+        .login-card .hint {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
+        
+        /* ==========================================
+           ЭКРАН ОБНОВЛЕНИЯ
+           ========================================== */
+        #update-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #4B5320;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 10001;
+            padding: 20px;
+        }
+        
+        #update-screen.active {
+            display: flex;
+        }
+        
+        .update-card {
+            background: white;
+            border-radius: 28px;
+            padding: 32px 24px;
+            max-width: 400px;
+            width: 100%;
+            text-align: center;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .update-card .icon {
+            font-size: 56px;
+            margin-bottom: 12px;
+        }
+        
+        .update-card h2 {
+            color: #1e2b3a;
+            font-size: 20px;
+            margin-bottom: 8px;
+        }
+        
+        .update-card p {
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 16px;
+        }
+        
+        .update-card .version-info {
+            background: #f1f3f5;
+            border-radius: 12px;
+            padding: 12px;
+            margin-bottom: 16px;
+            font-size: 13px;
+        }
+        
+        .update-card .version-info span {
+            display: block;
+            color: #1e2b3a;
+            font-weight: 600;
+        }
+        
+        .update-card .btn {
+            width: 100%;
+            padding: 16px;
+            background: #1e2b3a;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+        }
+        
+        .update-card .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .update-card .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .update-card .btn-secondary {
+            background: #6c757d;
+            margin-top: 8px;
+        }
+        
+        .update-card .progress-text {
+            font-size: 13px;
+            color: #666;
+            margin-top: 12px;
+        }
+        
+        /* ==========================================
+           ОСНОВНОЙ КАЛЬКУЛЯТОР
+           ========================================== */
+        #app-container {
+            display: none;
+            max-width: 480px;
+            margin: 0 auto;
+            padding: 8px;
+        }
+        
+        #app-container.active {
+            display: block;
+        }
+        
         .container {
             max-width: 480px;
             margin: 0 auto;
@@ -40,6 +385,7 @@
             flex-direction: column;
             gap: 12px;
         }
+        
         header {
             background: rgba(255,255,255,0.08);
             backdrop-filter: blur(4px);
@@ -50,7 +396,8 @@
             position: relative;
             z-index: 100;
         }
-        h1 {
+        
+        header h1 {
             color: white;
             font-size: 1.6rem;
             font-weight: 600;
@@ -61,9 +408,12 @@
             flex-wrap: wrap;
             margin-bottom: 6px;
         }
+        
         .subtitle { color: #b0c4de; font-size: 0.9rem; }
+        
         .weapon-selector { margin-top: 10px; position: relative; z-index: 200; }
         .weapon-dropdown { position: relative; }
+        
         .weapon-btn {
             width: 100%;
             padding: 14px 16px;
@@ -80,9 +430,9 @@
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
         }
-        .weapon-btn:active {
-            transform: scale(0.98);
-        }
+        
+        .weapon-btn:active { transform: scale(0.98); }
+        
         .weapon-list {
             position: absolute;
             top: calc(100% + 4px);
@@ -97,7 +447,9 @@
             display: none;
             border: 2px solid var(--secondary);
         }
+        
         .weapon-list.show { display: block; }
+        
         .weapon-item {
             padding: 14px 18px;
             border-bottom: 1px solid #dee2e6;
@@ -110,9 +462,11 @@
             background: white;
             -webkit-tap-highlight-color: transparent;
         }
+        
         .weapon-item:hover { background: #e0f0ff; }
         .weapon-item:active { background: #b0d4ff; }
         .weapon-item.active { background: var(--secondary); color: white; }
+        
         .main-content {
             display: flex;
             flex-direction: column;
@@ -120,12 +474,14 @@
             position: relative;
             z-index: 1;
         }
+        
         .calculator-card, .history-card {
             background: var(--card-bg);
             border-radius: 28px;
             padding: 20px 16px;
             box-shadow: 0 8px 20px rgba(0,0,0,0.5);
         }
+        
         .section-title {
             display: flex;
             align-items: center;
@@ -137,6 +493,7 @@
             padding-bottom: 10px;
             margin-bottom: 18px;
         }
+        
         .share-btn {
             margin-left: auto;
             background: none;
@@ -151,14 +508,18 @@
             align-items: center;
             gap: 6px;
         }
+        
         .share-btn:hover { background: rgba(75, 83, 32, 0.1); }
+        
         .form-grid {
             display: flex;
             flex-direction: column;
             gap: 18px;
             margin-bottom: 20px;
         }
+        
         .input-group { width: 100%; }
+        
         .input-group label {
             display: block;
             font-size: 0.9rem;
@@ -166,6 +527,7 @@
             color: var(--primary);
             margin-bottom: 4px;
         }
+        
         .input-group input {
             width: 100%;
             padding: 14px 16px;
@@ -175,10 +537,12 @@
             background: #f8f9fa;
             transition: all 0.2s;
         }
+        
         .input-group input.error {
             border-color: var(--danger);
             background: #fff2f0;
         }
+        
         .error-message {
             font-size: 0.75rem;
             color: var(--danger);
@@ -187,12 +551,14 @@
             display: none;
         }
         .error-message.show { display: block; }
+        
         .range-indicator {
             font-size: 0.75rem;
             color: #3d5a73;
             margin-left: 12px;
             margin-top: 4px;
         }
+        
         .toggle-container {
             background: #edf2f7;
             border-radius: 40px;
@@ -204,17 +570,20 @@
             flex-wrap: wrap;
             gap: 12px;
         }
+        
         .toggle-group {
             display: flex;
             align-items: center;
             gap: 10px;
         }
+        
         .toggle-switch {
             width: 52px;
             height: 28px;
             position: relative;
             display: inline-block;
         }
+        
         .slider {
             position: absolute;
             cursor: pointer;
@@ -223,6 +592,7 @@
             border-radius: 28px;
             transition: 0.2s;
         }
+        
         .slider:before {
             content: "";
             position: absolute;
@@ -234,8 +604,10 @@
             border-radius: 50%;
             transition: 0.2s;
         }
+        
         input:checked + .slider { background-color: #00BFFF; }
         input:checked + .slider:before { transform: translateX(24px); }
+        
         .charge-ranges {
             background: #edf2f7;
             border-radius: 30px;
@@ -243,6 +615,7 @@
             margin-bottom: 18px;
             border-left: 4px solid var(--secondary);
         }
+        
         .ranges-grid {
             display: flex;
             flex-wrap: wrap;
@@ -251,6 +624,7 @@
             max-height: 200px;
             overflow-y: auto;
         }
+        
         .range-item {
             background: white;
             padding: 8px 12px;
@@ -260,12 +634,14 @@
             flex: 1 0 auto;
             min-width: 120px;
         }
+        
         .buttons {
             display: flex;
             flex-wrap: wrap;
             gap: 10px;
             margin-top: 18px;
         }
+        
         .btn {
             flex: 1 1 130px;
             padding: 14px 12px;
@@ -281,12 +657,12 @@
             cursor: pointer;
             -webkit-tap-highlight-color: transparent;
         }
-        .btn:active {
-            transform: scale(0.97);
-        }
+        
+        .btn:active { transform: scale(0.97); }
         .btn-calculate { background: var(--primary); color: white; }
         .btn-redpoly { background: var(--red-poly); color: white; }
         .btn-reset { background: var(--danger); color: white; }
+        
         .results {
             background: #edf2f7;
             border-radius: 30px;
@@ -295,13 +671,16 @@
             border-left: 5px solid var(--secondary);
             display: none;
         }
+        
         .results.active { display: block; }
+        
         .result-grid {
             display: flex;
             flex-wrap: wrap;
             gap: 12px;
             margin-top: 12px;
         }
+        
         .result-item {
             flex: 1 1 100px;
             background: white;
@@ -310,11 +689,13 @@
             text-align: center;
             box-shadow: 0 2px 6px rgba(0,0,0,0.1);
         }
+        
         .result-value {
             font-size: 1.5rem;
             font-weight: 700;
             color: var(--primary);
         }
+        
         .history-table {
             width: 100%;
             border-collapse: collapse;
@@ -324,21 +705,25 @@
             overflow: hidden;
             display: table;
         }
+        
         .history-table th, .history-table td {
             padding: 12px 6px;
             text-align: left;
             border-bottom: 1px solid #dee2e6;
             white-space: nowrap;
         }
+        
         .history-table th {
             background: var(--primary);
             color: white;
             font-weight: 500;
         }
+        
         .history-content {
             overflow-x: auto;
             border-radius: 16px;
         }
+        
         .no-history {
             text-align: center;
             padding: 32px 12px;
@@ -346,6 +731,7 @@
             border-radius: 40px;
             color: #6c757d;
         }
+        
         .restart-section {
             margin-top: 24px;
             text-align: center;
@@ -354,14 +740,17 @@
             padding: 16px;
             border: 1px dashed rgba(255,255,255,0.3);
         }
+        
         .restart-section h3 { color: white; margin-bottom: 10px; font-size: 1.2rem; }
         .restart-section .btn { background: var(--danger); color: white; }
+        
         footer {
             text-align: center;
             color: #a0aec0;
             font-size: 0.75rem;
             margin-top: 16px;
         }
+        
         .badge {
             background: var(--secondary);
             color: white;
@@ -370,6 +759,7 @@
             font-size: 0.8rem;
             margin-left: 8px;
         }
+        
         .compact-table {
             width: 100%;
             border-collapse: collapse;
@@ -379,8 +769,10 @@
             border-radius: 16px;
             overflow: hidden;
         }
+        
         .compact-table th { background: var(--primary); color: white; padding: 6px; }
         .compact-table td { padding: 8px; border-bottom: 1px solid #ddd; }
+        
         .modal {
             display: none;
             position: fixed;
@@ -393,6 +785,7 @@
             align-items: center;
             justify-content: center;
         }
+        
         .modal-content {
             background: white;
             max-width: 90%;
@@ -403,16 +796,19 @@
             max-height: 80vh;
             overflow-y: auto;
         }
+        
         .modal-content h3 {
             margin-bottom: 16px;
             color: var(--primary);
         }
+        
         .modal-detail p {
             margin: 8px 0;
             font-size: 0.95rem;
             border-bottom: 1px solid #eee;
             padding: 6px 0;
         }
+        
         .modal-detail .history-entry {
             background: #f8f9fa;
             border-radius: 12px;
@@ -420,11 +816,13 @@
             margin: 10px 0;
             border-left: 4px solid var(--secondary);
         }
+        
         .modal-detail .history-entry p {
             border-bottom: none;
             padding: 3px 0;
             margin: 3px 0;
         }
+        
         .close-modal {
             margin-top: 16px;
             background: var(--secondary);
@@ -435,11 +833,13 @@
             width: 100%;
             cursor: pointer;
         }
+        
         #qr-code-container {
             display: flex;
             justify-content: center;
             margin: 16px 0;
         }
+        
         #qr-link-display {
             font-size: 0.7rem;
             word-break: break-all;
@@ -449,6 +849,7 @@
             border-radius: 8px;
             margin-top: 8px;
         }
+        
         .history-detail-item {
             background: #f8f9fa;
             border-radius: 12px;
@@ -456,18 +857,22 @@
             margin: 10px 0;
             border-left: 4px solid var(--secondary);
         }
+        
         .history-detail-item p {
             border-bottom: none !important;
             padding: 3px 0 !important;
             margin: 3px 0 !important;
         }
+        
         .history-detail-item strong {
             color: var(--primary);
         }
+        
         .history-detail-divider {
             border-top: 2px dashed #dee2e6;
             margin: 16px 0;
         }
+        
         .version-info {
             text-align: center;
             color: #a0aec0;
@@ -476,156 +881,283 @@
             opacity: 0.7;
             letter-spacing: 0.5px;
         }
+        
+        /* ==========================================
+           ЗАЩИТА ОТ СЛУЧАЙНОГО ОБНОВЛЕНИЯ
+           ========================================== */
+        .update-protection-banner {
+            position: fixed;
+            bottom: 20px;
+            left: 50%;
+            transform: translateX(-50%);
+            background: rgba(30, 43, 58, 0.9);
+            color: white;
+            padding: 10px 20px;
+            border-radius: 40px;
+            font-size: 12px;
+            backdrop-filter: blur(10px);
+            z-index: 500;
+            display: none;
+            text-align: center;
+            max-width: 90%;
+            border: 1px solid rgba(255,255,255,0.1);
+        }
+        
+        .update-protection-banner.show {
+            display: block;
+        }
+        
+        .update-protection-banner span {
+            color: #e9c46a;
+        }
     </style>
+    
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
     <script src="https://cdnjs.cloudflare.com/ajax/libs/qrcodejs/1.0.0/qrcode.min.js"></script>
 </head>
 <body>
 
-<!-- ОСНОВНОЕ ПРИЛОЖЕНИЕ -->
-<div id="app-container" style="display: block;">
-
-<div class="container">
-    <header>
-        <h1><i class="fas fa-calculator"></i> Артиллерийский Баллистический калькулятор</h1>
-        <div class="subtitle" id="trajectory-status">⚡ Мортирная стрельба</div>
-
-        <div class="weapon-selector">
-            <div class="weapon-dropdown">
-                <button class="weapon-btn" id="weapon-btn" type="button">
-                    <span id="selected-weapon">2С19 Мста-С</span>
-                    <i class="fas fa-chevron-down"></i>
-                </button>
-                <div class="weapon-list" id="weapon-list">
-                    <div class="weapon-item active" data-weapon="2S19">2С19 Мста-С</div>
-                    <div class="weapon-item" data-weapon="2S3M1">2С3М1 Акация</div>
-                    <div class="weapon-item" data-weapon="2S1">2С1 Гвоздика</div>
-                    <div class="weapon-item" data-weapon="D30">Д-30</div>
-                    <div class="weapon-item" data-weapon="2B11">2Б11</div>
-                    <div class="weapon-item" data-weapon="2B14">2Б14</div>
-                    <div class="weapon-item" data-weapon="2B26">2Б26 Град-К</div>
-                    <div class="weapon-item" data-weapon="Hilux">Hilux (Podnos)</div>
-                    <div class="weapon-item" data-weapon="TornadoS">9К58 Торнадо-С</div>
-                </div>
-            </div>
+<!-- ==========================================
+     ЭКРАН ЗАГРУЗКИ
+     ========================================== -->
+<div id="loading-screen">
+    <div class="loading-card">
+        <div class="spinner"></div>
+        <h2>🔄 Загрузка</h2>
+        <p class="subtitle">Проверка обновлений...</p>
+        <div class="progress-text" id="loading-status">Подготовка...</div>
+        <div class="progress-bar">
+            <div class="fill" id="progress-fill"></div>
         </div>
-    </header>
-
-    <div class="main-content">
-        <div class="calculator-card">
-            <div class="section-title"><i class="fas fa-cogs"></i>Параметры</div>
-
-            <div class="toggle-container">
-                <div class="toggle-group">
-                    <span><i class="fas fa-bolt"></i> Автоподбор заряда</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="auto-charge-toggle" checked>
-                        <span class="slider"></span>
-                    </label>
-                </div>
-                <div class="toggle-group" id="trajectory-toggle-group">
-                    <span id="trajectory-label"><i class="fas fa-chart-line"></i> Настильная стрельба</span>
-                    <label class="toggle-switch">
-                        <input type="checkbox" id="trajectory-toggle">
-                        <span class="slider"></span>
-                    </label>
-                </div>
-            </div>
-
-            <div class="charge-ranges" id="charge-ranges-container">
-                <h4 style="font-size:1rem;"><i class="fas fa-table"></i> Диапазоны зарядов:</h4>
-                <div class="ranges-grid" id="ranges-grid"></div>
-            </div>
-
-            <div class="input-group" id="charge-input-group" style="display: none;">
-                <label for="charge">Номер заряда</label>
-                <input type="number" id="charge" min="0" value="0">
-                <div class="error-message" id="charge-error"></div>
-                <div class="range-indicator" id="charge-range"></div>
-            </div>
-
-            <div class="form-grid">
-                <div class="input-group">
-                    <label><i class="fas fa-bullseye"></i> Дальность до цели (м)</label>
-                    <input type="number" id="distance" value="1100">
-                    <div class="error-message" id="distance-error"></div>
-                    <div class="range-indicator" id="distance-range"></div>
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-mountain"></i> Своя высота (м)</label>
-                    <input type="number" id="own-height" value="0">
-                </div>
-                <div class="input-group">
-                    <label><i class="fas fa-bullseye"></i> Высота цели (м)</label>
-                    <input type="number" id="target-height" value="0">
-                </div>
-            </div>
-
-            <div class="buttons">
-                <button class="btn btn-calculate" id="calculate-mortar"><i class="fas fa-calculator"></i> Элеватор</button>
-                <button class="btn btn-redpoly" id="calculate-redpoly"><i class="fas fa-crosshairs"></i> Краснополь</button>
-                <button class="btn btn-reset" id="reset-calculator"><i class="fas fa-redo"></i> Сброс</button>
-            </div>
-
-            <div class="results" id="results-mortar">
-                <h3 style="font-size:1.2rem;"><i class="fas fa-chart-line"></i> Элеватор</h3>
-                <div class="result-grid">
-                    <div class="result-item"><div class="result-label">Режим</div><div class="result-value" id="mortar-mode">Мортирный</div></div>
-                    <div class="result-item"><div class="result-label">Заряд</div><div class="result-value" id="mortar-charge">0</div></div>
-                    <div class="result-item"><div class="result-label">Время</div><div class="result-value time" id="mortar-flight-time">0</div></div>
-                    <div class="result-item"><div class="result-label">Элеватор</div><div class="result-value angle" id="mortar-elevation">0</div></div>
-                </div>
-            </div>
-
-            <div class="results redpoly-results" id="results-redpoly">
-                <h3 style="font-size:1.2rem;"><i class="fas fa-crosshairs"></i> Краснополь</h3>
-                <div class="result-grid">
-                    <div class="result-item"><div class="result-label">Профиль</div><div class="result-value" id="redpoly-profile">0</div></div>
-                    <div class="result-item"><div class="result-label">Элеватор</div><div class="result-value" id="redpoly-elevator">0</div></div>
-                    <div class="result-item"><div class="result-label">Задержка</div><div class="result-value" id="redpoly-delay">0</div></div>
-                    <div class="result-item"><div class="result-label">Время</div><div class="result-value" id="redpoly-flight-time">0</div></div>
-                    <div class="result-item"><div class="result-label">Заряд</div><div class="result-value" id="redpoly-charge">0</div></div>
-                </div>
-                <h4 style="margin:16px 0 6px; font-size:1rem;">Тумблеры 1-4</h4>
-                <table class="compact-table">
-                    <thead><tr><th>Тумблер</th><th>Угол</th><th>Элеватор</th></tr></thead>
-                    <tbody>
-                        <tr><th>1</th><td>70-80°</td><td>1260-1440</td></tr>
-                        <tr><th>2</th><td>70°</td><td>1260</td></tr>
-                        <tr><th>3</th><td>60°</td><td>1080</td></tr>
-                        <tr><th>4</th><td>50°</td><td>900</td></tr>
-                    </tbody>
-                </table>
-            </div>
-        </div>
-
-        <div class="history-card">
-            <div class="section-title">
-                <i class="fas fa-history"></i> История
-                <span class="badge" id="history-count">0</span>
-                <button class="share-btn" id="share-history-btn">
-                    <i class="fas fa-share-alt"></i> Поделиться
-                </button>
-            </div>
-            <div class="history-content">
-                <div class="no-history" id="no-history"><i class="fas fa-history fa-2x"></i><p>Нет расчетов</p></div>
-                <table class="history-table" id="history-table" style="display: none;">
-                    <thead><tr><th>Орудие</th><th>Дальн.</th><th>Заряд</th><th>Элев.</th><th>Время</th></tr></thead>
-                    <tbody id="history-table-body"></tbody>
-                </table>
-            </div>
-            <div class="restart-section">
-                <h3><i class="fas fa-power-off"></i> Перезапуск</h3>
-                <button class="btn" id="full-restart">Полный сброс</button>
-            </div>
-        </div>
+        <div class="version" id="loading-version">Версия: 8.8.28</div>
     </div>
-    
-    <div class="version-info" id="appVersionDisplay">Версия: 8.8.27</div>
-    
-    <footer>Создан Романовым А. В. / моб. версия</footer>
 </div>
 
+<!-- ==========================================
+     ЭКРАН ОБНОВЛЕНИЯ
+     ========================================== -->
+<div id="update-screen">
+    <div class="update-card">
+        <div class="icon">🔄</div>
+        <h2>Доступно обновление!</h2>
+        <p>Новая версия калькулятора готова к установке</p>
+        
+        <div class="version-info">
+            <span id="update-current-version">Текущая: 8.8.28</span>
+            <span id="update-new-version" style="color:#2a9d8f;">Новая: 8.8.29</span>
+        </div>
+        
+        <button class="btn" id="update-btn" onclick="installUpdate()">
+            ⬇️ Установить обновление
+        </button>
+        <button class="btn btn-secondary" onclick="skipUpdate()">
+            ⏭️ Пропустить (запустить без обновления)
+        </button>
+        
+        <div class="progress-text" id="update-status"></div>
+    </div>
+</div>
+
+<!-- ==========================================
+     ЭКРАН ВХОДА
+     ========================================== -->
+<div id="login-screen">
+    <div class="login-card">
+        <div class="icon">📧</div>
+        <h2>Артиллерийский калькулятор</h2>
+        <p class="subtitle">Введите данные для доступа</p>
+        
+        <div class="input-group">
+            <label>📧 Электронная почта</label>
+            <input 
+                type="email" 
+                id="email-input" 
+                placeholder="example@mail.ru"
+                autocomplete="email"
+            >
+        </div>
+        
+        <div class="input-group">
+            <label>🔑 Пин-код</label>
+            <input 
+                type="password" 
+                id="pin-input" 
+                placeholder="Введите пин-код"
+                maxlength="6"
+                inputmode="numeric"
+                autocomplete="off"
+            >
+        </div>
+        
+        <button class="btn" id="login-btn" onclick="login()">
+            🔓 Войти
+        </button>
+        
+        <div class="status" id="login-status"></div>
+        
+        <div class="hint">
+            💡 Для получения доступа обратитесь к администратору
+        </div>
+    </div>
+</div>
+
+<!-- ==========================================
+     БАННЕР ЗАЩИТЫ ОТ ОБНОВЛЕНИЯ
+     ========================================== -->
+<div class="update-protection-banner" id="update-banner">
+    <i class="fas fa-info-circle"></i>
+    Для обновления нажмите <span>«Установить обновление»</span> в меню
+</div>
+
+<!-- ==========================================
+     КАЛЬКУЛЯТОР
+     ========================================== -->
+<div id="app-container">
+    <div class="container">
+        <header>
+            <h1><i class="fas fa-calculator"></i> Артиллерийский Баллистический калькулятор</h1>
+            <div class="subtitle" id="trajectory-status">⚡ Мортирная стрельба</div>
+
+            <div class="weapon-selector">
+                <div class="weapon-dropdown">
+                    <button class="weapon-btn" id="weapon-btn" type="button">
+                        <span id="selected-weapon">2С19 Мста-С</span>
+                        <i class="fas fa-chevron-down"></i>
+                    </button>
+                    <div class="weapon-list" id="weapon-list">
+                        <div class="weapon-item active" data-weapon="2S19">2С19 Мста-С</div>
+                        <div class="weapon-item" data-weapon="2S3M1">2С3М1 Акация</div>
+                        <div class="weapon-item" data-weapon="2S1">2С1 Гвоздика</div>
+                        <div class="weapon-item" data-weapon="D30">Д-30</div>
+                        <div class="weapon-item" data-weapon="2B11">2Б11</div>
+                        <div class="weapon-item" data-weapon="2B14">2Б14</div>
+                        <div class="weapon-item" data-weapon="2B26">2Б26 Град-К</div>
+                        <div class="weapon-item" data-weapon="Hilux">Hilux (Podnos)</div>
+                        <div class="weapon-item" data-weapon="TornadoS">9К58 Торнадо-С</div>
+                    </div>
+                </div>
+            </div>
+        </header>
+
+        <div class="main-content">
+            <div class="calculator-card">
+                <div class="section-title"><i class="fas fa-cogs"></i>Параметры</div>
+
+                <div class="toggle-container">
+                    <div class="toggle-group">
+                        <span><i class="fas fa-bolt"></i> Автоподбор заряда</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="auto-charge-toggle" checked>
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                    <div class="toggle-group" id="trajectory-toggle-group">
+                        <span id="trajectory-label"><i class="fas fa-chart-line"></i> Настильная стрельба</span>
+                        <label class="toggle-switch">
+                            <input type="checkbox" id="trajectory-toggle">
+                            <span class="slider"></span>
+                        </label>
+                    </div>
+                </div>
+
+                <div class="charge-ranges" id="charge-ranges-container">
+                    <h4 style="font-size:1rem;"><i class="fas fa-table"></i> Диапазоны зарядов:</h4>
+                    <div class="ranges-grid" id="ranges-grid"></div>
+                </div>
+
+                <div class="input-group" id="charge-input-group" style="display: none;">
+                    <label for="charge">Номер заряда</label>
+                    <input type="number" id="charge" min="0" value="0">
+                    <div class="error-message" id="charge-error"></div>
+                    <div class="range-indicator" id="charge-range"></div>
+                </div>
+
+                <div class="form-grid">
+                    <div class="input-group">
+                        <label><i class="fas fa-bullseye"></i> Дальность до цели (м)</label>
+                        <input type="number" id="distance" value="1100">
+                        <div class="error-message" id="distance-error"></div>
+                        <div class="range-indicator" id="distance-range"></div>
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-mountain"></i> Своя высота (м)</label>
+                        <input type="number" id="own-height" value="0">
+                    </div>
+                    <div class="input-group">
+                        <label><i class="fas fa-bullseye"></i> Высота цели (м)</label>
+                        <input type="number" id="target-height" value="0">
+                    </div>
+                </div>
+
+                <div class="buttons">
+                    <button class="btn btn-calculate" id="calculate-mortar"><i class="fas fa-calculator"></i> Элеватор</button>
+                    <button class="btn btn-redpoly" id="calculate-redpoly"><i class="fas fa-crosshairs"></i> Краснополь</button>
+                    <button class="btn btn-reset" id="reset-calculator"><i class="fas fa-redo"></i> Сброс</button>
+                </div>
+
+                <div class="results" id="results-mortar">
+                    <h3 style="font-size:1.2rem;"><i class="fas fa-chart-line"></i> Элеватор</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="result-label">Режим</div><div class="result-value" id="mortar-mode">Мортирный</div></div>
+                        <div class="result-item"><div class="result-label">Заряд</div><div class="result-value" id="mortar-charge">0</div></div>
+                        <div class="result-item"><div class="result-label">Время</div><div class="result-value time" id="mortar-flight-time">0</div></div>
+                        <div class="result-item"><div class="result-label">Элеватор</div><div class="result-value angle" id="mortar-elevation">0</div></div>
+                    </div>
+                </div>
+
+                <div class="results redpoly-results" id="results-redpoly">
+                    <h3 style="font-size:1.2rem;"><i class="fas fa-crosshairs"></i> Краснополь</h3>
+                    <div class="result-grid">
+                        <div class="result-item"><div class="result-label">Профиль</div><div class="result-value" id="redpoly-profile">0</div></div>
+                        <div class="result-item"><div class="result-label">Элеватор</div><div class="result-value" id="redpoly-elevator">0</div></div>
+                        <div class="result-item"><div class="result-label">Задержка</div><div class="result-value" id="redpoly-delay">0</div></div>
+                        <div class="result-item"><div class="result-label">Время</div><div class="result-value" id="redpoly-flight-time">0</div></div>
+                        <div class="result-item"><div class="result-label">Заряд</div><div class="result-value" id="redpoly-charge">0</div></div>
+                    </div>
+                    <h4 style="margin:16px 0 6px; font-size:1rem;">Тумблеры 1-4</h4>
+                    <table class="compact-table">
+                        <thead><tr><th>Тумблер</th><th>Угол</th><th>Элеватор</th></tr></thead>
+                        <tbody>
+                            <tr><th>1</th><td>70-80°</td><td>1260-1440</td></tr>
+                            <tr><th>2</th><td>70°</td><td>1260</td></tr>
+                            <tr><th>3</th><td>60°</td><td>1080</td></tr>
+                            <tr><th>4</th><td>50°</td><td>900</td></tr>
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+
+            <div class="history-card">
+                <div class="section-title">
+                    <i class="fas fa-history"></i> История
+                    <span class="badge" id="history-count">0</span>
+                    <button class="share-btn" id="share-history-btn">
+                        <i class="fas fa-share-alt"></i> Поделиться
+                    </button>
+                </div>
+                <div class="history-content">
+                    <div class="no-history" id="no-history"><i class="fas fa-history fa-2x"></i><p>Нет расчетов</p></div>
+                    <table class="history-table" id="history-table" style="display: none;">
+                        <thead><tr><th>Орудие</th><th>Дальн.</th><th>Заряд</th><th>Элев.</th><th>Время</th></tr></thead>
+                        <tbody id="history-table-body"></tbody>
+                    </table>
+                </div>
+                <div class="restart-section">
+                    <h3><i class="fas fa-power-off"></i> Перезапуск</h3>
+                    <button class="btn" id="full-restart">Полный сброс</button>
+                </div>
+            </div>
+        </div>
+        
+        <div class="version-info" id="appVersionDisplay">Версия: 8.8.28</div>
+        
+        <footer>Создан Романовым А. В. / моб. версия</footer>
+    </div>
+</div>
+
+<!-- ==========================================
+     МОДАЛЬНЫЕ ОКНА
+     ========================================== -->
 <div id="detail-modal" class="modal">
     <div class="modal-content">
         <h3><i class="fas fa-info-circle"></i> Детали расчета</h3>
@@ -644,14 +1176,12 @@
     </div>
 </div>
 
-</div><!-- конец app-container -->
-
 <script>
 // ====================================================================
-// ==================== ТВОИ ДАННЫЕ (ЗАПОЛНИ САМ) ====================
+// ==================== ДАННЫЕ (ЗАПОЛНИТЕ САМИ) ======================
 // ====================================================================
 
-// ⚠️⚠️⚠️ СЮДА ВСТАВЬ СВОИ ДАННЫЕ ДЛЯ МОРТИРНОЙ СТРЕЛЬБЫ ⚠️⚠️⚠️
+// ⚠️⚠️⚠️ СЮДА ВСТАВЬТЕ СВОИ ДАННЫЕ ДЛЯ МОРТИРНОЙ СТРЕЛЬБЫ ⚠️⚠️⚠️
 const mortarData = {
             '2S19': { name: "2С19 Мста-С", hasRedpoly: true, maxCharge: 6, minCharge: 0, step: 1, 
             ranges: [
@@ -7075,10 +7605,471 @@ const mortarData = {
             }
         };
 
-const APP_VERSION = '8.8.27';
+// ====================================================================
+// ==================== ВЕРСИЯ ПРИЛОЖЕНИЯ ============================
+// ====================================================================
+
+const APP_VERSION = '8.8.28';
 
 // ====================================================================
-// ==================== ОСНОВНОЙ КОД ПРИЛОЖЕНИЯ =======================
+// ==================== СИСТЕМА ОБНОВЛЕНИЙ ===========================
+// ====================================================================
+
+class UpdateManager {
+    constructor() {
+        this.VERSION_URL = 'https://raw.githubusercontent.com/chanatri1-stack/test-ArtBallCalc/main/version.json';
+        this.CURRENT_VERSION = APP_VERSION;
+        this.updateCheckInterval = 3600000;
+    }
+    
+    async checkForUpdate() {
+        try {
+            const lastCheck = localStorage.getItem('last_update_check');
+            if (lastCheck && (Date.now() - parseInt(lastCheck)) < this.updateCheckInterval) {
+                const cached = localStorage.getItem('update_info');
+                if (cached) return JSON.parse(cached);
+            }
+            
+            const response = await fetch(this.VERSION_URL + '?t=' + Date.now());
+            
+            if (!response.ok) {
+                return { hasUpdate: false };
+            }
+            
+            const data = await response.json();
+            
+            const hasUpdate = this.compareVersions(this.CURRENT_VERSION, data.version) < 0;
+            
+            const result = {
+                hasUpdate: hasUpdate,
+                currentVersion: this.CURRENT_VERSION,
+                newVersion: data.version,
+                updateUrl: data.updateUrl || null,
+                timestamp: Date.now()
+            };
+            
+            localStorage.setItem('update_info', JSON.stringify(result));
+            localStorage.setItem('last_update_check', Date.now().toString());
+            
+            return result;
+            
+        } catch(e) {
+            console.error('Ошибка проверки обновлений:', e);
+            return { hasUpdate: false };
+        }
+    }
+    
+    compareVersions(v1, v2) {
+        const parts1 = v1.split('.').map(Number);
+        const parts2 = v2.split('.').map(Number);
+        
+        for (let i = 0; i < Math.max(parts1.length, parts2.length); i++) {
+            const n1 = parts1[i] || 0;
+            const n2 = parts2[i] || 0;
+            if (n1 !== n2) return n1 - n2;
+        }
+        return 0;
+    }
+    
+    async installUpdate() {
+        try {
+            document.getElementById('update-status').textContent = '⏳ Обновление...';
+            document.getElementById('update-btn').disabled = true;
+            
+            await this.clearCache();
+            
+            document.getElementById('update-status').textContent = '🔄 Перезагрузка...';
+            
+            setTimeout(() => {
+                location.reload(true);
+            }, 1500);
+            
+        } catch(e) {
+            console.error('Ошибка:', e);
+            document.getElementById('update-status').textContent = '❌ Ошибка. Перезагрузите.';
+            document.getElementById('update-btn').disabled = false;
+        }
+    }
+    
+    async clearCache() {
+        try {
+            if ('caches' in window) {
+                const keys = await caches.keys();
+                for (const key of keys) {
+                    await caches.delete(key);
+                }
+            }
+            
+            const importantKeys = ['user_email', 'user_pin', 'email_access_data'];
+            const toKeep = {};
+            for (const key of importantKeys) {
+                const value = localStorage.getItem(key);
+                if (value) toKeep[key] = value;
+            }
+            
+            localStorage.clear();
+            
+            for (const [key, value] of Object.entries(toKeep)) {
+                localStorage.setItem(key, value);
+            }
+            
+            console.log('✅ Кэш очищен');
+            
+        } catch(e) {
+            console.error('Ошибка очистки кэша:', e);
+        }
+    }
+}
+
+// ====================================================================
+// ==================== СИСТЕМА ДОСТУПА ==============================
+// ====================================================================
+
+class EmailAccessManager {
+    constructor() {
+        this.SHEET_URL = 'https://docs.google.com/spreadsheets/d/1XhpuQFo2sX95EG74C-GGvmWsrMyPhzeUKwsUAotzw10/export?format=csv';
+        this.STORAGE_KEY = 'email_access_data';
+        this.EMAIL_KEY = 'user_email';
+        this.PIN_KEY = 'user_pin';
+    }
+    
+    async getWhitelist() {
+        try {
+            const response = await fetch(this.SHEET_URL + '?t=' + Date.now());
+            const csv = await response.text();
+            
+            const lines = csv.split('\n');
+            const users = [];
+            
+            for (let i = 1; i < lines.length; i++) {
+                const line = lines[i].trim();
+                if (!line) continue;
+                
+                const parts = line.split(',');
+                
+                if (parts.length >= 3) {
+                    const email = parts[0].trim().toLowerCase();
+                    const pin = parts[1].trim();
+                    const status = parts[2].trim().toLowerCase();
+                    
+                    users.push({
+                        email: email,
+                        pin: pin,
+                        active: status === 'разрешен',
+                        status: status
+                    });
+                }
+            }
+            
+            return users;
+            
+        } catch(e) {
+            console.error('Ошибка загрузки списка:', e);
+            return [];
+        }
+    }
+    
+    async checkAccess(email, pin) {
+        if (!email || !pin) {
+            return { success: false, message: 'Заполните все поля' };
+        }
+        
+        email = email.toLowerCase().trim();
+        pin = pin.trim();
+        
+        const whitelist = await this.getWhitelist();
+        
+        const user = whitelist.find(u => u.email === email);
+        
+        if (!user) {
+            return { success: false, message: '❌ Почта не найдена' };
+        }
+        
+        if (!user.active) {
+            return { success: false, message: '❌ Доступ запрещен' };
+        }
+        
+        if (user.pin !== pin) {
+            return { success: false, message: '❌ Неверный пин-код' };
+        }
+        
+        this.saveAccess(email, pin);
+        
+        return { 
+            success: true, 
+            message: '✅ Доступ разрешен!'
+        };
+    }
+    
+    saveAccess(email, pin) {
+        localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
+            email: email,
+            pin: pin,
+            timestamp: Date.now()
+        }));
+        
+        localStorage.setItem(this.EMAIL_KEY, email);
+        localStorage.setItem(this.PIN_KEY, pin);
+    }
+    
+    getSavedAccess() {
+        const saved = localStorage.getItem(this.STORAGE_KEY);
+        if (!saved) return null;
+        
+        try {
+            const data = JSON.parse(saved);
+            if (Date.now() - data.timestamp > 30 * 24 * 60 * 60 * 1000) {
+                return null;
+            }
+            return data;
+        } catch(e) {
+            return null;
+        }
+    }
+    
+    logout() {
+        localStorage.removeItem(this.STORAGE_KEY);
+        localStorage.removeItem(this.EMAIL_KEY);
+        localStorage.removeItem(this.PIN_KEY);
+    }
+}
+
+// ====================================================================
+// ==================== ГЛАВНАЯ ЛОГИКА ===============================
+// ====================================================================
+
+const updateManager = new UpdateManager();
+const access = new EmailAccessManager();
+
+// ==========================================
+// ОБНОВЛЕНИЕ ПРОГРЕССА
+// ==========================================
+function updateProgress(text, percent) {
+    document.getElementById('loading-status').textContent = text;
+    document.getElementById('progress-fill').style.width = Math.min(100, percent) + '%';
+}
+
+// ==========================================
+// ЗАПУСК ПРИЛОЖЕНИЯ
+// ==========================================
+async function startApp() {
+    try {
+        // ШАГ 1: Очистка кэша
+        updateProgress('🧹 Очистка кэша...', 10);
+        await updateManager.clearCache();
+        updateProgress('✅ Кэш очищен', 20);
+        
+        // ШАГ 2: Проверка обновлений
+        updateProgress('🔍 Проверка обновлений...', 30);
+        const updateInfo = await updateManager.checkForUpdate();
+        
+        if (updateInfo.hasUpdate) {
+            document.getElementById('loading-screen').classList.add('hidden');
+            document.getElementById('update-screen').classList.add('active');
+            
+            document.getElementById('update-current-version').textContent = 'Текущая: ' + updateInfo.currentVersion;
+            document.getElementById('update-new-version').textContent = 'Новая: ' + updateInfo.newVersion;
+            return;
+        }
+        
+        // ШАГ 3: Проверка доступа
+        updateProgress('🔐 Проверка доступа...', 70);
+        
+        // Скрываем загрузку, показываем вход
+        document.getElementById('loading-screen').classList.add('hidden');
+        document.getElementById('login-screen').classList.add('active');
+        
+        // Проверяем автовход
+        const saved = access.getSavedAccess();
+        if (saved) {
+            document.getElementById('email-input').value = saved.email;
+            document.getElementById('pin-input').value = saved.pin;
+            setTimeout(login, 500);
+        }
+        
+        updateProgress('✅ Готово', 100);
+        document.getElementById('appVersionDisplay').textContent = 'Версия: ' + APP_VERSION;
+        document.getElementById('loading-version').textContent = 'Версия: ' + APP_VERSION;
+        
+        // Показываем баннер защиты от обновления при скролле
+        setupUpdateProtection();
+        
+    } catch(e) {
+        console.error('Ошибка запуска:', e);
+        document.getElementById('loading-status').textContent = '❌ Ошибка запуска. Перезагрузите приложение.';
+    }
+}
+
+// ==========================================
+// ЗАЩИТА ОТ СЛУЧАЙНОГО ОБНОВЛЕНИЯ
+// ==========================================
+function setupUpdateProtection() {
+    const banner = document.getElementById('update-banner');
+    let scrollTimeout;
+    let bannerTimeout;
+    
+    document.addEventListener('scroll', function() {
+        // Показываем баннер при скролле
+        banner.classList.add('show');
+        
+        // Скрываем баннер через 3 секунды после остановки скролла
+        clearTimeout(scrollTimeout);
+        scrollTimeout = setTimeout(() => {
+            banner.classList.remove('show');
+        }, 3000);
+        
+        // Если баннер виден долго - скрываем через 5 секунд
+        clearTimeout(bannerTimeout);
+        bannerTimeout = setTimeout(() => {
+            banner.classList.remove('show');
+        }, 5000);
+    }, { passive: true });
+    
+    // Также показываем при первом касании (для мобильных)
+    document.addEventListener('touchstart', function() {
+        banner.classList.add('show');
+        clearTimeout(bannerTimeout);
+        bannerTimeout = setTimeout(() => {
+            banner.classList.remove('show');
+        }, 3000);
+    }, { passive: true });
+}
+
+// ==========================================
+// УСТАНОВКА ОБНОВЛЕНИЯ
+// ==========================================
+async function installUpdate() {
+    await updateManager.installUpdate();
+}
+
+// ==========================================
+// ПРОПУСК ОБНОВЛЕНИЯ
+// ==========================================
+function skipUpdate() {
+    document.getElementById('update-screen').classList.remove('active');
+    document.getElementById('login-screen').classList.add('active');
+    
+    const saved = access.getSavedAccess();
+    if (saved) {
+        document.getElementById('email-input').value = saved.email;
+        document.getElementById('pin-input').value = saved.pin;
+        setTimeout(login, 500);
+    }
+}
+
+// ==========================================
+// ВХОД
+// ==========================================
+async function login() {
+    const emailInput = document.getElementById('email-input');
+    const pinInput = document.getElementById('pin-input');
+    const statusEl = document.getElementById('login-status');
+    const loginBtn = document.getElementById('login-btn');
+    
+    const email = emailInput.value;
+    const pin = pinInput.value;
+    
+    emailInput.classList.remove('error');
+    pinInput.classList.remove('error');
+    
+    if (!email) {
+        emailInput.classList.add('error');
+        statusEl.textContent = '❌ Введите почту';
+        statusEl.className = 'status error';
+        return;
+    }
+    
+    if (!pin) {
+        pinInput.classList.add('error');
+        statusEl.textContent = '❌ Введите пин-код';
+        statusEl.className = 'status error';
+        return;
+    }
+    
+    loginBtn.disabled = true;
+    statusEl.textContent = '⏳ Проверка...';
+    statusEl.className = 'status loading';
+    
+    try {
+        const result = await access.checkAccess(email, pin);
+        
+        if (result.success) {
+            statusEl.textContent = result.message;
+            statusEl.className = 'status success';
+            
+            setTimeout(() => {
+                // Скрываем экран входа
+                document.getElementById('login-screen').classList.remove('active');
+                document.getElementById('login-screen').classList.add('hidden');
+                
+                // Показываем калькулятор
+                document.getElementById('app-container').classList.add('active');
+                
+                // Запускаем калькулятор
+                if (typeof initializeApp === 'function') {
+                    initializeApp();
+                }
+            }, 800);
+            
+        } else {
+            statusEl.textContent = result.message;
+            statusEl.className = 'status error';
+            
+            if (result.message.includes('пин')) {
+                pinInput.classList.add('error');
+            } else if (result.message.includes('Почта')) {
+                emailInput.classList.add('error');
+            }
+        }
+        
+    } catch(e) {
+        statusEl.textContent = '❌ Ошибка проверки';
+        statusEl.className = 'status error';
+        console.error(e);
+    }
+    
+    loginBtn.disabled = false;
+}
+
+// ==========================================
+// УБИРАЕМ ОШИБКИ ПРИ ВВОДЕ
+// ==========================================
+document.getElementById('email-input').addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById('login-status').textContent = '';
+    document.getElementById('login-status').className = 'status';
+});
+
+document.getElementById('pin-input').addEventListener('input', function() {
+    this.classList.remove('error');
+    document.getElementById('login-status').textContent = '';
+    document.getElementById('login-status').className = 'status';
+});
+
+document.addEventListener('keydown', function(e) {
+    if (e.key === 'Enter') {
+        const active = document.activeElement;
+        if (active && (active.id === 'email-input' || active.id === 'pin-input')) {
+            login();
+        }
+    }
+});
+
+// ==========================================
+// ЗАПУСК
+// ==========================================
+document.addEventListener('DOMContentLoaded', function() {
+    // Скрываем всё лишнее
+    document.getElementById('app-container').classList.remove('active');
+    document.getElementById('login-screen').classList.remove('active');
+    document.getElementById('login-screen').classList.remove('hidden');
+    
+    // Запускаем приложение
+    startApp();
+});
+
+// ====================================================================
+// ==================== КАЛЬКУЛЯТОР ==================================
 // ====================================================================
 
 function initializeApp() {
@@ -7637,7 +8628,7 @@ function initializeApp() {
 
     document.getElementById('share-history-btn').addEventListener('click', window.shareHistory);
 
-    // ========== ОБРАБОТЧИКИ ДЛЯ СПИСКА ОРУДИЙ ==========
+    // Обработчики для списка орудий
     document.getElementById('weapon-btn').addEventListener('click', function(e) {
         e.preventDefault();
         e.stopPropagation();
@@ -7670,10 +8661,24 @@ function initializeApp() {
 }
 
 // ====================================================================
-// ==================== ЗАПУСК ========================================
+// ==================== ДЕЛАЕМ ФУНКЦИИ ГЛОБАЛЬНЫМИ ==================
 // ====================================================================
 
-initializeApp();
+window.login = login;
+window.installUpdate = installUpdate;
+window.skipUpdate = skipUpdate;
+window.initializeApp = initializeApp;
+window.closeModal = function() { document.getElementById('detail-modal').style.display = 'none'; };
+window.closeQRModal = function() { document.getElementById('qr-modal').style.display = 'none'; };
+window.shareHistory = function() { 
+    // Функция будет доступна после инициализации
+    if (typeof window._shareHistory === 'function') {
+        window._shareHistory();
+    }
+};
+
+console.log('✅ Артиллерийский калькулятор загружен. Версия: ' + APP_VERSION);
+console.log('📝 Для заполнения данных отредактируйте mortarData и flatData в коде.');
 </script>
 </body>
 </html>
