@@ -7,11 +7,14 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <meta name="app-version" content="8.8.31">
+    <meta name="app-version" content="8.8.32">
     
     <title>Арт. баллистический калькулятор</title>
     
     <style>
+        /* ==========================================
+           ВСЕ СТИЛИ
+           ========================================== */
         * {
             margin: 0;
             padding: 0;
@@ -128,6 +131,147 @@
         }
         
         /* ==========================================
+           ЭКРАН ВХОДА (ТОЛЬКО ПИН-КОД)
+           ========================================== */
+        #login-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: #4B5320;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9999;
+            padding: 20px;
+        }
+        
+        #login-screen.active {
+            display: flex;
+        }
+        
+        #login-screen.hidden {
+            display: none;
+        }
+        
+        .login-card {
+            background: white;
+            border-radius: 28px;
+            padding: 32px 24px;
+            max-width: 400px;
+            width: 100%;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
+        }
+        
+        .login-card .icon {
+            font-size: 56px;
+            text-align: center;
+            margin-bottom: 12px;
+        }
+        
+        .login-card h2 {
+            text-align: center;
+            color: #1e2b3a;
+            font-size: 22px;
+            margin-bottom: 4px;
+        }
+        
+        .login-card .subtitle {
+            text-align: center;
+            color: #666;
+            font-size: 14px;
+            margin-bottom: 24px;
+        }
+        
+        .login-card .input-group {
+            margin-bottom: 16px;
+        }
+        
+        .login-card .input-group label {
+            display: block;
+            font-size: 13px;
+            font-weight: 600;
+            color: #1e2b3a;
+            margin-bottom: 4px;
+        }
+        
+        .login-card .input-group input {
+            width: 100%;
+            padding: 14px 16px;
+            border: 2px solid #ced4da;
+            border-radius: 30px;
+            font-size: 16px;
+            transition: all 0.2s;
+            background: #f8f9fa;
+            text-align: center;
+            letter-spacing: 6px;
+            font-weight: 600;
+        }
+        
+        .login-card .input-group input:focus {
+            outline: none;
+            border-color: #1e2b3a;
+            background: white;
+        }
+        
+        .login-card .input-group input.error {
+            border-color: #c44536;
+            background: #fff2f0;
+        }
+        
+        .login-card .btn {
+            width: 100%;
+            padding: 16px;
+            background: #1e2b3a;
+            color: white;
+            border: none;
+            border-radius: 40px;
+            font-size: 16px;
+            font-weight: 600;
+            cursor: pointer;
+            transition: all 0.2s;
+            margin-top: 8px;
+        }
+        
+        .login-card .btn:active {
+            transform: scale(0.98);
+        }
+        
+        .login-card .btn:disabled {
+            opacity: 0.6;
+            cursor: not-allowed;
+        }
+        
+        .login-card .status {
+            text-align: center;
+            font-size: 14px;
+            margin-top: 12px;
+            min-height: 24px;
+        }
+        
+        .login-card .status.success {
+            color: #2a9d8f;
+        }
+        
+        .login-card .status.error {
+            color: #c44536;
+        }
+        
+        .login-card .status.loading {
+            color: #666;
+        }
+        
+        .login-card .hint {
+            font-size: 12px;
+            color: #999;
+            text-align: center;
+            margin-top: 16px;
+            padding-top: 16px;
+            border-top: 1px solid #eee;
+        }
+        
+        /* ==========================================
            ЭКРАН ОБНОВЛЕНИЯ (НЕЗАКРЫВАЕМЫЙ)
            ========================================== */
         #update-screen {
@@ -232,144 +376,6 @@
             color: #c44536;
             margin-top: 12px;
             display: block;
-        }
-        
-        /* ==========================================
-           ЭКРАН ВХОДА
-           ========================================== */
-        #login-screen {
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100%;
-            background: #4B5320;
-            display: none;
-            justify-content: center;
-            align-items: center;
-            z-index: 9999;
-            padding: 20px;
-        }
-        
-        #login-screen.active {
-            display: flex;
-        }
-        
-        #login-screen.hidden {
-            display: none;
-        }
-        
-        .login-card {
-            background: white;
-            border-radius: 28px;
-            padding: 32px 24px;
-            max-width: 400px;
-            width: 100%;
-            box-shadow: 0 20px 60px rgba(0,0,0,0.5);
-        }
-        
-        .login-card .icon {
-            font-size: 56px;
-            text-align: center;
-            margin-bottom: 12px;
-        }
-        
-        .login-card h2 {
-            text-align: center;
-            color: #1e2b3a;
-            font-size: 22px;
-            margin-bottom: 4px;
-        }
-        
-        .login-card .subtitle {
-            text-align: center;
-            color: #666;
-            font-size: 14px;
-            margin-bottom: 24px;
-        }
-        
-        .login-card .input-group {
-            margin-bottom: 16px;
-        }
-        
-        .login-card .input-group label {
-            display: block;
-            font-size: 13px;
-            font-weight: 600;
-            color: #1e2b3a;
-            margin-bottom: 4px;
-        }
-        
-        .login-card .input-group input {
-            width: 100%;
-            padding: 14px 16px;
-            border: 2px solid #ced4da;
-            border-radius: 30px;
-            font-size: 16px;
-            transition: all 0.2s;
-            background: #f8f9fa;
-        }
-        
-        .login-card .input-group input:focus {
-            outline: none;
-            border-color: #1e2b3a;
-            background: white;
-        }
-        
-        .login-card .input-group input.error {
-            border-color: #c44536;
-            background: #fff2f0;
-        }
-        
-        .login-card .btn {
-            width: 100%;
-            padding: 16px;
-            background: #1e2b3a;
-            color: white;
-            border: none;
-            border-radius: 40px;
-            font-size: 16px;
-            font-weight: 600;
-            cursor: pointer;
-            transition: all 0.2s;
-            margin-top: 8px;
-        }
-        
-        .login-card .btn:active {
-            transform: scale(0.98);
-        }
-        
-        .login-card .btn:disabled {
-            opacity: 0.6;
-            cursor: not-allowed;
-        }
-        
-        .login-card .status {
-            text-align: center;
-            font-size: 14px;
-            margin-top: 12px;
-            min-height: 24px;
-        }
-        
-        .login-card .status.success {
-            color: #2a9d8f;
-        }
-        
-        .login-card .status.error {
-            color: #c44536;
-        }
-        
-        .login-card .status.loading {
-            color: #666;
-        }
-        
-        .login-card .hint {
-            font-size: 12px;
-            color: #999;
-            text-align: center;
-            margin-top: 16px;
-            padding-top: 16px;
-            border-top: 1px solid #eee;
         }
         
         /* ==========================================
@@ -889,32 +895,6 @@
             opacity: 0.7;
             letter-spacing: 0.5px;
         }
-        
-        .update-protection-banner {
-            position: fixed;
-            bottom: 20px;
-            left: 50%;
-            transform: translateX(-50%);
-            background: rgba(30, 43, 58, 0.9);
-            color: white;
-            padding: 10px 20px;
-            border-radius: 40px;
-            font-size: 12px;
-            backdrop-filter: blur(10px);
-            z-index: 500;
-            display: none;
-            text-align: center;
-            max-width: 90%;
-            border: 1px solid rgba(255,255,255,0.1);
-        }
-        
-        .update-protection-banner.show {
-            display: block;
-        }
-        
-        .update-protection-banner span {
-            color: #e9c46a;
-        }
     </style>
     
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css">
@@ -932,7 +912,7 @@
         <div class="progress-bar">
             <div class="fill" id="progress-fill"></div>
         </div>
-        <div class="version" id="loading-version">Версия: 8.8.31</div>
+        <div class="version" id="loading-version">Версия: 8.8.32</div>
     </div>
 </div>
 
@@ -944,8 +924,8 @@
         <p>Почистите кэш и перезапустите приложение</p>
         
         <div class="version-info">
-            <span>Текущая версия: <span id="update-current-version">8.8.31</span></span>
-            <span class="new">Новая версия: <span id="update-new-version">8.8.31</span></span>
+            <span>Текущая версия: <span id="update-current-version">8.8.32</span></span>
+            <span class="new">Новая версия: <span id="update-new-version">8.8.32</span></span>
         </div>
         
         <button class="btn btn-restart" id="update-btn" onclick="restartApp()">
@@ -958,35 +938,33 @@
     </div>
 </div>
 
-<!-- ЭКРАН ВХОДА -->
+<!-- ЭКРАН ВХОДА (ТОЛЬКО ПИН-КОД) -->
 <div id="login-screen">
     <div class="login-card">
-        <div class="icon">📧</div>
+        <div class="icon">🔐</div>
         <h2>Артиллерийский калькулятор</h2>
-        <p class="subtitle">Введите данные для доступа</p>
+        <p class="subtitle">Введите код доступа</p>
         
         <div class="input-group">
-            <label>📧 Электронная почта</label>
-            <input type="email" id="email-input" placeholder="example@mail.ru" autocomplete="email">
+            <label>🔑 Код доступа</label>
+            <input 
+                type="password" 
+                id="pin-input" 
+                placeholder="Введите код"
+                maxlength="6"
+                inputmode="numeric"
+                autocomplete="off"
+            >
         </div>
         
-        <div class="input-group">
-            <label>🔑 Пин-код</label>
-            <input type="password" id="pin-input" placeholder="Введите пин-код" maxlength="6" inputmode="numeric" autocomplete="off">
-        </div>
-        
-        <button class="btn" id="login-btn" onclick="login()">🔓 Войти</button>
+        <button class="btn" id="login-btn" onclick="login()">
+            🔓 Войти
+        </button>
         
         <div class="status" id="login-status"></div>
         
-        <div class="hint">💡 Для получения доступа обратитесь к администратору</div>
+        <div class="hint">💡 Для получения кода обратитесь к администратору</div>
     </div>
-</div>
-
-<!-- БАННЕР ЗАЩИТЫ ОТ ОБНОВЛЕНИЯ -->
-<div class="update-protection-banner" id="update-banner">
-    <i class="fas fa-info-circle"></i>
-    Приложение обновляется автоматически
 </div>
 
 <!-- КАЛЬКУЛЯТОР -->
@@ -1127,7 +1105,7 @@
             </div>
         </div>
         
-        <div class="version-info" id="appVersionDisplay">Версия: 8.8.31</div>
+        <div class="version-info" id="appVersionDisplay">Версия: 8.8.32</div>
         
         <footer>Создан Романовым А. В. / моб. версия</footer>
     </div>
@@ -7582,10 +7560,13 @@ const mortarData = {
         };
 
 // ====================================================================
-// ==================== ВЕРСИЯ ПРИЛОЖЕНИЯ ============================
+// ==================== ВЕРСИЯ И ПИН-КОД =============================
 // ====================================================================
 
-const APP_VERSION = '8.8.31';
+// 👇 ЭТОТ ПИН-КОД ВЫ МЕНЯЕТЕ ВРУЧНУЮ
+const APP_PIN = '1488';  // Меняйте здесь на свой пин-код
+
+const APP_VERSION = '8.8.32';
 
 // ====================================================================
 // ==================== СИСТЕМА ОБНОВЛЕНИЙ ===========================
@@ -7597,9 +7578,6 @@ class UpdateManager {
         this.CURRENT_VERSION = APP_VERSION;
     }
     
-    // ==========================================
-    // ПРОВЕРКА ОБНОВЛЕНИЙ
-    // ==========================================
     async checkForUpdate() {
         try {
             const response = await fetch(this.VERSION_URL + '?t=' + Date.now());
@@ -7636,15 +7614,11 @@ class UpdateManager {
         return 0;
     }
     
-    // ==========================================
-    // ОЧИСТКА КЭША И ПЕРЕЗАПУСК
-    // ==========================================
     async clearCacheAndRestart() {
         try {
             document.getElementById('update-status').textContent = '🧹 Очистка кэша...';
             document.getElementById('update-btn').disabled = true;
             
-            // Очищаем все кэши
             if ('caches' in window) {
                 const keys = await caches.keys();
                 for (const key of keys) {
@@ -7652,7 +7626,6 @@ class UpdateManager {
                 }
             }
             
-            // Очищаем localStorage (кроме важных данных)
             const importantKeys = ['user_email', 'user_pin', 'email_access_data'];
             const toKeep = {};
             for (const key of importantKeys) {
@@ -7681,128 +7654,10 @@ class UpdateManager {
 }
 
 // ====================================================================
-// ==================== СИСТЕМА ДОСТУПА (ИСПРАВЛЕННАЯ) ===============
-// ====================================================================
-
-class EmailAccessManager {
-    constructor() {
-        this.SHEET_URL = 'https://docs.google.com/spreadsheets/d/1XhpuQFo2sX95EG74C-GGvmWsrMyPhzeUKwsUAotzw10/export?format=csv';
-        this.STORAGE_KEY = 'email_access_data';
-        this.EMAIL_KEY = 'user_email';
-        this.PIN_KEY = 'user_pin';
-    }
-    
-    async getWhitelist() {
-        try {
-            const response = await fetch(this.SHEET_URL + '?t=' + Date.now());
-            const csv = await response.text();
-
-            const lines = csv.split('\n');
-            const users = [];
-
-            for (let i = 0; i < lines.length; i++) {
-                const line = lines[i].trim();
-                if (!line) continue;
-
-                const parts = line.split(',');
-
-                // Пропускаем строки без @ (заголовки)
-                if (parts.length >= 1 && !parts[0].includes('@')) {
-                    continue;
-                }
-
-                if (parts.length >= 3) {
-                    const email = parts[0].trim().toLowerCase();
-                    const pin = parts[1].trim();
-                    const status = parts[2].trim().toLowerCase();
-
-                    users.push({
-                        email: email,
-                        pin: pin,
-                        active: status === 'разрешен' || status === 'разрешён'
-                    });
-                }
-            }
-
-            return users;
-
-        } catch(e) {
-            console.error('Ошибка загрузки списка:', e);
-            return [];
-        }
-    }
-    
-    async checkAccess(email, pin) {
-        if (!email || !pin) {
-            return { success: false, message: 'Заполните все поля' };
-        }
-
-        email = email.toLowerCase().trim();
-        pin = pin.trim();
-
-        const whitelist = await this.getWhitelist();
-
-        const user = whitelist.find(u => u.email === email);
-
-        if (!user) {
-            return { success: false, message: '❌ Почта не найдена' };
-        }
-
-        if (!user.active) {
-            return { success: false, message: '❌ Доступ запрещен' };
-        }
-
-        if (user.pin !== pin) {
-            return { success: false, message: '❌ Неверный пин-код' };
-        }
-
-        this.saveAccess(email, pin);
-
-        return {
-            success: true,
-            message: '✅ Доступ разрешен!'
-        };
-    }
-    
-    saveAccess(email, pin) {
-        localStorage.setItem(this.STORAGE_KEY, JSON.stringify({
-            email: email,
-            pin: pin,
-            timestamp: Date.now()
-        }));
-
-        localStorage.setItem(this.EMAIL_KEY, email);
-        localStorage.setItem(this.PIN_KEY, pin);
-    }
-    
-    getSavedAccess() {
-        const saved = localStorage.getItem(this.STORAGE_KEY);
-        if (!saved) return null;
-
-        try {
-            const data = JSON.parse(saved);
-            if (Date.now() - data.timestamp > 30 * 24 * 60 * 60 * 1000) {
-                return null;
-            }
-            return data;
-        } catch(e) {
-            return null;
-        }
-    }
-    
-    logout() {
-        localStorage.removeItem(this.STORAGE_KEY);
-        localStorage.removeItem(this.EMAIL_KEY);
-        localStorage.removeItem(this.PIN_KEY);
-    }
-}
-
-// ====================================================================
 // ==================== ГЛАВНАЯ ЛОГИКА ===============================
 // ====================================================================
 
 const updateManager = new UpdateManager();
-const access = new EmailAccessManager();
 
 function updateProgress(text, percent) {
     document.getElementById('loading-status').textContent = text;
@@ -7819,15 +7674,11 @@ async function startApp() {
         const updateInfo = await updateManager.checkForUpdate();
         
         if (updateInfo.hasUpdate) {
-            // Показываем экран обновления (НЕЗАКРЫВАЕМЫЙ)
             document.getElementById('loading-screen').classList.add('hidden');
             document.getElementById('update-screen').classList.add('active');
             
             document.getElementById('update-current-version').textContent = updateInfo.currentVersion;
             document.getElementById('update-new-version').textContent = updateInfo.newVersion;
-            
-            // Убираем возможность закрыть через ESC или клик вне
-            document.getElementById('update-screen').style.pointerEvents = 'auto';
             
             return;
         }
@@ -7836,11 +7687,10 @@ async function startApp() {
         document.getElementById('loading-screen').classList.add('hidden');
         document.getElementById('login-screen').classList.add('active');
         
-        // Проверяем автовход
-        const saved = access.getSavedAccess();
-        if (saved) {
-            document.getElementById('email-input').value = saved.email;
-            document.getElementById('pin-input').value = saved.pin;
+        // Проверяем сохраненный пин-код (автовход)
+        const savedPin = localStorage.getItem('app_pin');
+        if (savedPin === APP_PIN) {
+            document.getElementById('pin-input').value = savedPin;
             setTimeout(login, 500);
         }
         
@@ -7861,30 +7711,20 @@ async function restartApp() {
 }
 
 // ==========================================
-// ВХОД
+// ВХОД (ПРОВЕРКА ПИН-КОДА)
 // ==========================================
-async function login() {
-    const emailInput = document.getElementById('email-input');
+function login() {
     const pinInput = document.getElementById('pin-input');
     const statusEl = document.getElementById('login-status');
     const loginBtn = document.getElementById('login-btn');
     
-    const email = emailInput.value;
-    const pin = pinInput.value;
+    const pin = pinInput.value.trim();
     
-    emailInput.classList.remove('error');
     pinInput.classList.remove('error');
-    
-    if (!email) {
-        emailInput.classList.add('error');
-        statusEl.textContent = '❌ Введите почту';
-        statusEl.className = 'status error';
-        return;
-    }
     
     if (!pin) {
         pinInput.classList.add('error');
-        statusEl.textContent = '❌ Введите пин-код';
+        statusEl.textContent = '❌ Введите код доступа';
         statusEl.className = 'status error';
         return;
     }
@@ -7893,12 +7733,14 @@ async function login() {
     statusEl.textContent = '⏳ Проверка...';
     statusEl.className = 'status loading';
     
-    try {
-        const result = await access.checkAccess(email, pin);
-        
-        if (result.success) {
-            statusEl.textContent = result.message;
+    setTimeout(() => {
+        if (pin === APP_PIN) {
+            // Пин-код правильный
+            statusEl.textContent = '✅ Доступ разрешен!';
             statusEl.className = 'status success';
+            
+            // Сохраняем пин-код для автовхода
+            localStorage.setItem('app_pin', pin);
             
             setTimeout(() => {
                 document.getElementById('login-screen').classList.remove('active');
@@ -7911,31 +7753,21 @@ async function login() {
             }, 800);
             
         } else {
-            statusEl.textContent = result.message;
+            // Пин-код неправильный
+            statusEl.textContent = '❌ Неверный код доступа';
             statusEl.className = 'status error';
-            
-            if (result.message.includes('пин')) {
-                pinInput.classList.add('error');
-            } else if (result.message.includes('Почта')) {
-                emailInput.classList.add('error');
-            }
+            pinInput.classList.add('error');
+            pinInput.value = '';
+            pinInput.focus();
         }
         
-    } catch(e) {
-        statusEl.textContent = '❌ Ошибка проверки';
-        statusEl.className = 'status error';
-        console.error(e);
-    }
-    
-    loginBtn.disabled = false;
+        loginBtn.disabled = false;
+    }, 500);
 }
 
-document.getElementById('email-input').addEventListener('input', function() {
-    this.classList.remove('error');
-    document.getElementById('login-status').textContent = '';
-    document.getElementById('login-status').className = 'status';
-});
-
+// ==========================================
+// УБИРАЕМ ОШИБКИ ПРИ ВВОДЕ
+// ==========================================
 document.getElementById('pin-input').addEventListener('input', function() {
     this.classList.remove('error');
     document.getElementById('login-status').textContent = '';
@@ -7945,7 +7777,7 @@ document.getElementById('pin-input').addEventListener('input', function() {
 document.addEventListener('keydown', function(e) {
     if (e.key === 'Enter') {
         const active = document.activeElement;
-        if (active && (active.id === 'email-input' || active.id === 'pin-input')) {
+        if (active && active.id === 'pin-input') {
             login();
         }
     }
@@ -8564,6 +8396,7 @@ window.initializeApp = initializeApp;
 
 console.log('✅ Артиллерийский калькулятор загружен. Версия: ' + APP_VERSION);
 console.log('📝 Для заполнения данных отредактируйте mortarData и flatData в коде.');
+console.log('🔑 Пин-код: ' + APP_PIN);
 </script>
 </body>
 </html>
