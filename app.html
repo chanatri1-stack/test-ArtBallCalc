@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <meta name="app-version" content="8.8.34">
+    <meta name="app-version" content="8.8.35">
     
     <title>Арт. баллистический калькулятор</title>
     
@@ -23,21 +23,21 @@
         
         :root {
             --primary: #1e2b3a;
-            --secondary: #4B5320;
+            --secondary: #4A4A4A;
             --accent: #e9c46a;
             --danger: #c44536;
             --success: #2a9d8f;
             --light: #f4f9f9;
             --dark: #0d1b2a;
             --border: #adb5bd;
-            --card-bg: rgba(255, 255, 255, 0.88);
+            --card-bg: rgba(255, 255, 255, 0.7);
             --red-poly: #b23b2c;
             --orange: #f4a261;
         }
         
         body {
             font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
-            background: #4B5320 url('bg.webp') center / cover no-repeat fixed;
+            background: var(--dark) url('bg.webp') center / cover no-repeat fixed;
             color: #000000;
             min-height: 100vh;
             padding: 8px;
@@ -379,6 +379,47 @@
             margin-top: 16px;
             padding-top: 16px;
             border-top: 1px solid rgba(238, 238, 238, 0.5);
+        }
+        
+        /* ==========================================
+           ЭКРАН ПЕРЕХОДА (ПРОМЕЖУТОЧНЫЙ)
+           ========================================== */
+        #transition-screen {
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: var(--dark) url('bg.webp') center / cover no-repeat fixed;
+            display: none;
+            justify-content: center;
+            align-items: center;
+            z-index: 9998;
+        }
+        
+        #transition-screen.active {
+            display: flex;
+        }
+        
+        #transition-screen .loading-text {
+            color: white;
+            font-size: 1.4rem;
+            font-weight: 300;
+            text-shadow: 0 2px 30px rgba(0,0,0,0.9);
+            opacity: 0.8;
+            letter-spacing: 3px;
+            background: rgba(0,0,0,0.25);
+            padding: 16px 32px;
+            border-radius: 50px;
+            backdrop-filter: blur(6px);
+            -webkit-backdrop-filter: blur(6px);
+            border: 1px solid rgba(255,255,255,0.1);
+            animation: pulseText 1.5s ease-in-out infinite;
+        }
+        
+        @keyframes pulseText {
+            0%, 100% { opacity: 0.6; transform: scale(1); }
+            50% { opacity: 1; transform: scale(1.03); }
         }
         
         /* ==========================================
@@ -982,7 +1023,7 @@
         <div class="progress-bar">
             <div class="fill" id="progress-fill"></div>
         </div>
-        <div class="version" id="loading-version">Версия: 8.8.34</div>
+        <div class="version" id="loading-version">Версия: 8.8.35</div>
     </div>
 </div>
 
@@ -994,8 +1035,8 @@
         <p>Обновите приложение через GitHub Pages</p>
         
         <div class="version-info">
-            <span>Текущая версия: <span id="update-current-version">8.8.34</span></span>
-            <span class="new">Новая версия: <span id="update-new-version">8.8.34</span></span>
+            <span>Текущая версия: <span id="update-current-version">8.8.35</span></span>
+            <span class="new">Новая версия: <span id="update-new-version">8.8.35</span></span>
         </div>
         
         <p style="font-size:13px; color:#999; margin-top:12px;">
@@ -1034,6 +1075,11 @@
         
         <div class="hint">💡 Для получения кода обратитесь к администратору</div>
     </div>
+</div>
+
+<!-- ЭКРАН ПЕРЕХОДА (ПРОМЕЖУТОЧНЫЙ) -->
+<div id="transition-screen">
+    <div class="loading-text">✦ Загрузка... ✦</div>
 </div>
 
 <!-- КАЛЬКУЛЯТОР -->
@@ -1174,7 +1220,7 @@
             </div>
         </div>
         
-        <div class="version-info" id="appVersionDisplay">Версия: 8.8.34</div>
+        <div class="version-info" id="appVersionDisplay">Версия: 8.8.35</div>
         
         <footer>Создан Романовым А. В. / моб. версия</footer>
     </div>
@@ -1204,7 +1250,12 @@
 // ==================== ДАННЫЕ (ЗАПОЛНИТЕ САМИ) ======================
 // ====================================================================
 
-// ⚠️⚠️⚠️ СЮДА ВСТАВЬТЕ СВОИ ДАННЫЕ ⚠️⚠️⚠️
+
+// ====================================================================
+// ==================== ВЕРСИЯ И ПИН-КОД =============================
+// ====================================================================
+
+
 const mortarData = {
             '2S19': { name: "2С19 Мста-С", hasRedpoly: true, maxCharge: 6, minCharge: 0, step: 1, 
             ranges: [
@@ -7628,12 +7679,8 @@ const mortarData = {
             }
         };
 
-// ====================================================================
-// ==================== ВЕРСИЯ И ПИН-КОД =============================
-// ====================================================================
-
 const APP_PIN = '1488';
-const APP_VERSION = '8.8.34';
+const APP_VERSION = '8.8.35';
 
 // ====================================================================
 // ==================== СИСТЕМА ОБНОВЛЕНИЙ ===========================
@@ -7759,15 +7806,23 @@ function login() {
             
             localStorage.setItem('app_pin', pin);
             
+            // Скрываем экран входа
+            document.getElementById('login-screen').classList.remove('active');
+            document.getElementById('login-screen').classList.add('hidden');
+            
+            // ПОКАЗЫВАЕМ ПРОМЕЖУТОЧНЫЙ ЭКРАН
+            const transitionScreen = document.getElementById('transition-screen');
+            transitionScreen.classList.add('active');
+            
+            // Через 2 секунды открываем калькулятор
             setTimeout(() => {
-                document.getElementById('login-screen').classList.remove('active');
-                document.getElementById('login-screen').classList.add('hidden');
+                transitionScreen.classList.remove('active');
                 document.getElementById('app-container').classList.add('active');
                 
                 if (typeof initializeApp === 'function') {
                     initializeApp();
                 }
-            }, 800);
+            }, 2000);
             
         } else {
             statusEl.textContent = '❌ Неверный код доступа';
@@ -7796,6 +7851,20 @@ document.addEventListener('keydown', function(e) {
         if (active && active.id === 'pin-input') {
             login();
         }
+    }
+});
+
+// ==========================================
+// ПОДТВЕРЖДЕНИЕ ПРИ ПЕРЕЗАГРУЗКЕ СТРАНИЦЫ
+// ==========================================
+window.addEventListener('beforeunload', function(e) {
+    // Проверяем, открыт ли калькулятор (а не экран входа или загрузки)
+    const appContainer = document.getElementById('app-container');
+    if (appContainer.classList.contains('active')) {
+        // Стандартное сообщение для подтверждения
+        e.preventDefault();
+        e.returnValue = 'Вы уверены, что хотите перезагрузить страницу? Все несохранённые данные будут потеряны.';
+        return e.returnValue;
     }
 });
 
