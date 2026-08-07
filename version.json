@@ -1,4 +1,5 @@
 {
-    "version": "8.8.40",
-    "updateUrl": "https://raw.githubusercontent.com/chanatri1-stack/test-ArtBallCalc/main/app.html"
+  "version": "8.8.40",
+  "url": "https://raw.githubusercontent.com/chanatri1-stack/artball-calculator/main/app.html",
+  "changelog": "  "
 }
