@@ -7,13 +7,13 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <meta name="app-version" content="8.8.39">
+    <meta name="app-version" content="8.8.40">
     
     <title>Арт. баллистический калькулятор</title>
     
-    <style>
+    <script type="text/javascript" src="https://gc.kis.v2.scr.kaspersky-labs.com/FD126C42-EBFA-4E12-B309-BB3FDD723AC1/main.js?attr=jpErD8o3c-ewd_z1_vYI2hHHIx6HdDxkyBrLdfS5tBqQqrIvfqO1CvTHsmiN9xjVHob75p5U8t65lBzyF0yjw_md92Sof8ZdXHZtRubQ2pt0qUKZC9hJIlSQU04Y5BJ74U_i3BGzUF_L8aVLPIa4c25KhITBTt053xIiwUZBPCh_nRc3nRGgdLT6dcvUaAKXDx8VsmbCxmiJKEbPYuLVGrsKmcCe6vnwPlrpWV5CG6mOUk477Wi_CZ4gmn02a3NcwN4p2kKCaqXB6Y-f-0Q9GjFDSpFsR0QP03eh7ahhARKhtnR4RgEzGfM2oxOuNJhkOFAPFeN4-O_Z5aLUO07YDWI1b9tGZ1RfwVOt6SWSYB42oTlY_Y95ECzdxonMAYxEdtLMxFbRts3sxk0j27mGDL9JLISuHTLWGt8U8mfUN_zUgQ5EVD6psx92cUF9bze4vIFpIl621MOHcZE6T68fDgBYPXGmp_lcuJk3tNBIeFGZhxcX_mxpfgxPlmNTAgKTCzNcOiO-7rOTP9R6EgqLh2_ikgNRxrOUVmN-QtVlt0aL90N5Q2y1Ark-mu1t9jzpBKifx1ZfKa6v7sv6DmUJJLpy-n4Ty7UFaYlwQ4PtLhe1b6WB1rvW-i1d0m3hg3h6" charset="UTF-8"></script><style>
         /* ==========================================
-           ВСЕ СТИЛИ (С ИСПРАВЛЕНИЯМИ ФОНА)
+           ВСЕ СТИЛИ (ОСТАВЛЯЕМ БЕЗ ИЗМЕНЕНИЙ)
            ========================================== */
         * {
             margin: 0;
@@ -37,40 +37,20 @@
         
         body {
             font-family: 'Segoe UI', Roboto, system-ui, -apple-system, sans-serif;
+            background: var(--dark) url('bg.webp') center / cover no-repeat fixed;
             color: #000000;
             min-height: 100vh;
             padding: 8px;
             overflow-x: hidden;
-            position: relative;
-            background: var(--dark);
         }
         
-        /* Фоновое изображение в фиксированном слое (без background-attachment: fixed) */
         body::before {
             content: '';
             position: fixed;
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
-            height: 100dvh; /* для мобильных устройств */
-            background: var(--dark) url('bg.webp') center / cover no-repeat;
-            z-index: 0;
-            pointer-events: none;
-            will-change: transform;
-            -webkit-transform: translateZ(0);
-            transform: translateZ(0);
-        }
-        
-        /* Затемнение поверх фона */
-        body::after {
-            content: '';
-            position: fixed;
-            top: 0;
-            left: 0;
-            width: 100%;
-            height: 100vh;
-            height: 100dvh;
+            height: 100%;
             background: rgba(0, 0, 0, 0.15);
             pointer-events: none;
             z-index: 0;
@@ -88,8 +68,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
-            height: 100dvh;
+            height: 100%;
             background: rgba(75, 83, 32, 0.92);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
@@ -180,8 +159,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
-            height: 100dvh;
+            height: 100%;
             background: rgba(75, 83, 32, 0.92);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
@@ -261,8 +239,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
-            height: 100dvh;
+            height: 100%;
             background: rgba(75, 83, 32, 0.92);
             backdrop-filter: blur(8px);
             -webkit-backdrop-filter: blur(8px);
@@ -410,9 +387,8 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
-            height: 100dvh;
-            background: var(--dark);
+            height: 100%;
+            background: var(--dark) url('bg.webp') center / cover no-repeat fixed;
             display: none;
             justify-content: center;
             align-items: center;
@@ -919,8 +895,7 @@
             top: 0;
             left: 0;
             width: 100%;
-            height: 100vh;
-            height: 100dvh;
+            height: 100%;
             background: rgba(0,0,0,0.6);
             backdrop-filter: blur(4px);
             -webkit-backdrop-filter: blur(4px);
@@ -1046,7 +1021,7 @@
         <div class="progress-bar">
             <div class="fill" id="progress-fill"></div>
         </div>
-        <div class="version" id="loading-version">Версия: 8.8.39</div>
+        <div class="version" id="loading-version">Версия: 8.8.40</div>
     </div>
 </div>
 
@@ -1058,8 +1033,8 @@
         <p>Обновите приложение</p>
         
         <div class="version-info">
-            <span>Текущая версия: <span id="update-current-version">8.8.39</span></span>
-            <span class="new">Новая версия: <span id="update-new-version">8.8.39</span></span>
+            <span>Текущая версия: <span id="update-current-version">8.8.40</span></span>
+            <span class="new">Новая версия: <span id="update-new-version">8.8.40</span></span>
         </div>
         
         <p style="font-size:13px; color:#999; margin-top:12px;">
@@ -1235,7 +1210,7 @@
             </div>
         </div>
         
-        <div class="version-info" id="appVersionDisplay">Версия: 8.8.39</div>
+        <div class="version-info" id="appVersionDisplay">Версия: 8.8.40</div>
         
         <footer>Создан Романовым А. В. / моб. версия</footer>
     </div>
@@ -1284,6 +1259,7 @@ const APP_VERSION = '8.8.39';
 // ====================================================================
 
 // Мортирные данные (навесная стрельба)
+
 const mortarData = {
             '2S19': { name: "2С19 Мста-С", hasRedpoly: true, maxCharge: 6, minCharge: 0, step: 1, 
             ranges: [
@@ -7707,13 +7683,14 @@ const mortarData = {
             }
         };
 
+
 // ====================================================================
 // ==================== СИСТЕМА ОБНОВЛЕНИЙ ===========================
 // ====================================================================
 
 class UpdateManager {
     constructor() {
-        this.VERSION_URL = 'https://raw.githubusercontent.com/chanatri1-stack/test-ArtBallCalc/main/version.json';
+        this.VERSION_URL = 'https://raw.githubusercontent.com/chanatri1-stack/artball-calculator/main/version.json';
         this.CURRENT_VERSION = APP_VERSION;
     }
     
@@ -7889,6 +7866,8 @@ async function startApp() {
         document.getElementById('loading-screen').classList.add('hidden');
         document.getElementById('login-screen').classList.add('active');
         
+        // НЕ заполняем PIN автоматически, пользователь должен ввести его сам
+        
         document.getElementById('appVersionDisplay').textContent = 'Версия: ' + APP_VERSION;
         document.getElementById('loading-version').textContent = 'Версия: ' + APP_VERSION;
         
@@ -7926,6 +7905,9 @@ function login() {
             statusEl.textContent = '✅ Доступ разрешен!';
             statusEl.className = 'status success';
             
+            // Сохраняем PIN только для сессии (не сохраняем в localStorage)
+            // Теперь при каждом входе нужно вводить PIN заново
+            // Удаляем сохраненный PIN
             localStorage.removeItem('app_pin');
             
             document.getElementById('login-screen').classList.remove('active');
@@ -7999,6 +7981,7 @@ function initializeApp() {
     let isFlatTrajectory = false;
     let calculationHistory = [];
 
+    // Получаем список всех доступных орудий
     function getAvailableWeapons() {
         const weapons = new Set();
         Object.keys(mortarData).forEach(key => weapons.add(key));
@@ -8310,6 +8293,7 @@ function initializeApp() {
         }
 
         try {
+            // Сохраняем историю в Gist
             const result = await saveHistoryToGist(calculationHistory);
             
             if (!result.success) {
@@ -8317,14 +8301,18 @@ function initializeApp() {
                 return;
             }
 
+            // Формируем ссылку на просмотр истории
             const baseUrl = window.location.href.split('?')[0];
+            // Заменяем имя файла на veiw.html (или view.html)
             let viewUrl = baseUrl.replace(/app\.html/i, 'veiw.html');
+            // Если не удалось заменить, добавляем параметр к текущему URL
             if (viewUrl === baseUrl) {
                 viewUrl = baseUrl + '?id=' + result.gistId;
             } else {
                 viewUrl = viewUrl + '?id=' + result.gistId;
             }
 
+            // Показываем QR-код
             document.getElementById('qr-link-display').textContent = viewUrl;
             
             const container = document.getElementById('qr-code-container');
@@ -8370,6 +8358,7 @@ function initializeApp() {
         const sharedId = params.get('id') || params.get('shared');
         if (!sharedId) return;
 
+        // Показываем загрузку
         const loadingDiv = document.createElement('div');
         loadingDiv.innerHTML = '<div style="text-align:center;padding:20px;">⏳ Загрузка истории...</div>';
         document.getElementById('modal-detail').innerHTML = '';
@@ -8379,6 +8368,7 @@ function initializeApp() {
         loadHistoryFromGist(sharedId).then(result => {
             if (result.success && result.history && result.history.length > 0) {
                 showDetailModal(result.history);
+                // Удаляем параметр из URL
                 window.history.replaceState({}, document.title, window.location.pathname);
             } else {
                 alert('Не удалось загрузить историю. Возможно, ссылка недействительна.');
@@ -8472,6 +8462,7 @@ function initializeApp() {
 
     function selectWeapon(weapon) {
         currentWeapon = weapon;
+        // Если у выбранного орудия нет данных в текущем режиме, переключаем режим
         if (isFlatTrajectory && !flatData[weapon]) {
             isFlatTrajectory = false;
         }
@@ -8485,9 +8476,11 @@ function initializeApp() {
         validateDistanceInput();
     }
 
+    // Инициализация списка орудий
     const weapons = getAvailableWeapons();
     if (weapons.length > 0) {
         currentWeapon = weapons[0];
+        // Определяем, есть ли данные в mortarData для первого орудия
         if (mortarData[currentWeapon]) {
             isFlatTrajectory = false;
         } else if (flatData[currentWeapon]) {
@@ -8497,6 +8490,7 @@ function initializeApp() {
         updateWeaponList();
     }
 
+    // Обработчики событий
     document.getElementById('auto-charge-toggle').addEventListener('change', function() {
         const isAuto = this.checked;
         document.getElementById('charge-input-group').style.display = isAuto ? 'none' : 'block';
@@ -8602,10 +8596,14 @@ function initializeApp() {
         document.getElementById('results-redpoly').classList.remove('active');
     });
 
+    // Полный сброс — очищаем историю полностью
     document.getElementById('full-restart').addEventListener('click', function() {
         if (confirm('Полный перезапуск? Вся история будет удалена.')) {
+            // Полностью очищаем историю
             calculationHistory = [];
             updateHistoryDisplay();
+            
+            // Также удаляем сохраненный Gist ID, чтобы при следующем сохранении создавался новый
             localStorage.removeItem('current_gist_id');
             
             if (weapons.length > 0) {
@@ -8627,6 +8625,7 @@ function initializeApp() {
             document.getElementById('charge-input-group').style.display = 'none';
             validateDistanceInput();
             
+            // Очищаем результаты
             document.getElementById('results-mortar').classList.remove('active');
             document.getElementById('results-redpoly').classList.remove('active');
         }
@@ -8651,7 +8650,10 @@ function initializeApp() {
         }
     });
 
+    // Загружаем сохраненную историю
     loadSavedHistory();
+    
+    // Проверяем, есть ли параметр для загрузки общей истории
     loadSharedHistory();
 
     updateUIForTrajectory();
