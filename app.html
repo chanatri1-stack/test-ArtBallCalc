@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <meta name="app-version" content="8.8.45">
+    <meta name="app-version" content="8.8.46">
     
     <title>Арт. баллистический калькулятор</title>
     
@@ -1006,7 +1006,7 @@
         <div class="progress-bar">
             <div class="fill" id="progress-fill"></div>
         </div>
-        <div class="version" id="loading-version">Версия: 8.8.45</div>
+        <div class="version" id="loading-version">Версия: 8.8.46</div>
     </div>
 </div>
 
@@ -1018,8 +1018,8 @@
         <p>Обновите приложение</p>
         
         <div class="version-info">
-            <span>Текущая версия: <span id="update-current-version">8.8.45</span></span>
-            <span class="new">Новая версия: <span id="update-new-version">8.8.45</span></span>
+            <span>Текущая версия: <span id="update-current-version">8.8.46</span></span>
+            <span class="new">Новая версия: <span id="update-new-version">8.8.46</span></span>
         </div>
         
         <p style="font-size:13px; color:#999; margin-top:12px;">
@@ -1186,7 +1186,7 @@
             </div>
         </div>
         
-        <div class="version-info" id="appVersionDisplay">Версия: 8.8.45</div>
+        <div class="version-info" id="appVersionDisplay">Версия: 8.8.46</div>
         
         <footer>Создан Романовым А. В. / моб. версия</footer>
     </div>
@@ -1225,7 +1225,7 @@ const SECRET_KEY = SECRET_KEY_PART1 + SECRET_KEY_PART2;
 // ====================================================================
 
 const APP_PIN = '1488';
-const APP_VERSION = '8.8.45';
+const APP_VERSION = '8.8.46';
 
 // ====================================================================
 // ==================== ДАННЫЕ (ОСТАВЛЕНЫ ПУСТЫМИ) ===================
@@ -7654,14 +7654,13 @@ const mortarData = {
                 }
             }
         };
-
 // ====================================================================
 // ==================== СИСТЕМА ОБНОВЛЕНИЙ ===========================
 // ====================================================================
 
 class UpdateManager {
     constructor() {
-        this.VERSION_URL = 'https://raw.githubusercontent.com/chanatri1-stack/test-ArtBallCalc/main/version.json';
+        this.VERSION_URL = 'https://raw.githubusercontent.com/chanatri1-stack/tast-ArtBallCalc/main/version.json';
         this.CURRENT_VERSION = APP_VERSION;
     }
     
@@ -7961,20 +7960,44 @@ function initializeApp() {
             return false;
         }
 
+        // Определяем, мортирная это наводка или настильная
+        const isMortar = !isFlatTrajectory;
+
         if (auto) {
             // При автоподборе проверяем попадание в диапазон хотя бы одного заряда
-            const global = getGlobalRange();
-            minD = global.min;
-            maxD = global.max;
-            
-            // Проверяем, попадает ли дальность в диапазон хотя бы одного заряда
-            if (!isNaN(rawValue) && isDistanceInAnyChargeRange(rawValue)) {
-                // Дальность корректна
-                isValid = true;
-            } else if (!isNaN(rawValue)) {
-                // Дальность есть, но не попадает ни в один заряд
+            // Для мортирной наводки - особое сообщение
+            if (isNaN(rawValue)) {
                 isValid = false;
-                errorMsg = `Дальность не попадает в диапазон зарядов (${minD} - ${maxD} м)`;
+                errorMsg = 'Введите числовое значение';
+            } else if (!isDistanceInAnyChargeRange(rawValue)) {
+                isValid = false;
+                if (isMortar) {
+                    errorMsg = 'Введенная дальность не попадает в диапазоны зарядов';
+                } else {
+                    const global = getGlobalRange();
+                    errorMsg = `Дальность не попадает в диапазон зарядов (${global.min} - ${global.max} м)`;
+                }
+            }
+            
+            // Если дальность корректна, показываем глобальный диапазон
+            if (isValid && !isNaN(rawValue)) {
+                const global = getGlobalRange();
+                rangeDiv.innerHTML = `Диапазон зарядов: ${global.min} - ${global.max} м ✅`;
+                rangeDiv.className = 'range-indicator';
+            } else if (!isValid && !isNaN(rawValue)) {
+                // Невалидная дальность - показываем сообщение
+                const global = getGlobalRange();
+                if (isMortar) {
+                    rangeDiv.innerHTML = `Введенная дальность не попадает в диапазоны зарядов ❌`;
+                } else {
+                    rangeDiv.innerHTML = `Дальность не попадает в диапазон зарядов (${global.min} - ${global.max} м) ❌`;
+                }
+                rangeDiv.className = 'range-indicator error';
+            } else {
+                // Пустое поле или не число
+                const global = getGlobalRange();
+                rangeDiv.innerHTML = `Диапазон зарядов: ${global.min} - ${global.max} м`;
+                rangeDiv.className = 'range-indicator';
             }
         } else {
             // Ручной режим - проверяем только выбранный заряд
@@ -7987,45 +8010,39 @@ function initializeApp() {
                 minD = 0;
                 maxD = 20000;
             }
-        }
 
-        if (isNaN(rawValue)) {
-            isValid = false;
-            errorMsg = `Введите числовое значение (${minD} - ${maxD} м)`;
-        } else if (rawValue < minD) {
-            isValid = false;
-            errorMsg = `Дальность не может быть меньше ${minD} м`;
-        } else if (rawValue > maxD) {
-            isValid = false;
-            errorMsg = `Дальность не может быть больше ${maxD} м`;
+            if (isNaN(rawValue)) {
+                isValid = false;
+                errorMsg = `Введите числовое значение (${minD} - ${maxD} м)`;
+            } else if (rawValue < minD) {
+                isValid = false;
+                errorMsg = `Дальность не может быть меньше ${minD} м`;
+            } else if (rawValue > maxD) {
+                isValid = false;
+                errorMsg = `Дальность не может быть больше ${maxD} м`;
+            }
+
+            if (isValid && !isNaN(rawValue)) {
+                rangeDiv.innerHTML = `Допустимый диапазон для заряда: ${minD} - ${maxD} м ✅`;
+                rangeDiv.className = 'range-indicator';
+            } else if (!isValid && !isNaN(rawValue)) {
+                rangeDiv.innerHTML = `Допустимый диапазон для заряда: ${minD} - ${maxD} м ❌`;
+                rangeDiv.className = 'range-indicator error';
+            } else {
+                rangeDiv.innerHTML = `Допустимый диапазон для заряда: ${minD} - ${maxD} м`;
+                rangeDiv.className = 'range-indicator';
+            }
         }
 
         if (!isValid) {
             distInput.classList.add('error');
             errorDiv.innerText = errorMsg;
             errorDiv.classList.add('show');
-            rangeDiv.className = 'range-indicator error';
         } else {
             distInput.classList.remove('error');
             errorDiv.classList.remove('show');
-            rangeDiv.className = 'range-indicator';
         }
 
-        if (auto) {
-            if (isDistanceInAnyChargeRange(rawValue)) {
-                rangeDiv.innerHTML = `Диапазон зарядов: ${minD} - ${maxD} м ✅`;
-                rangeDiv.className = 'range-indicator';
-            } else if (!isNaN(rawValue)) {
-                rangeDiv.innerHTML = `Дальность не попадает в диапазон зарядов (${minD} - ${maxD} м) ❌`;
-                rangeDiv.className = 'range-indicator error';
-            } else {
-                rangeDiv.innerHTML = `Диапазон зарядов: ${minD} - ${maxD} м`;
-                rangeDiv.className = 'range-indicator';
-            }
-        } else {
-            rangeDiv.innerHTML = `Допустимый диапазон для заряда: ${minD} - ${maxD} м`;
-            rangeDiv.className = 'range-indicator';
-        }
         return isValid;
     }
 
@@ -8095,7 +8112,7 @@ function initializeApp() {
         if (auto) {
             effectiveCharge = findBestChargeAuto(dist, oh, th);
             if (effectiveCharge === null) {
-                throw new Error('Дальность не попадает в диапазон зарядов');
+                throw new Error('Введенная дальность не попадает в диапазоны зарядов');
             }
         } else if (charge === null) {
             effectiveCharge = src.minCharge || 0;
@@ -8471,7 +8488,13 @@ function initializeApp() {
             return;
         }
         if (!validateDistanceInput()) {
-            alert('Некорректная дальность! Проверьте введенное значение.');
+            const isMortar = !isFlatTrajectory;
+            const auto = document.getElementById('auto-charge-toggle').checked;
+            if (isMortar && auto) {
+                alert('Введенная дальность не попадает в диапазоны зарядов');
+            } else {
+                alert('Некорректная дальность! Проверьте введенное значение.');
+            }
             return;
         }
         let dist = parseFloat(document.getElementById('distance').value);
@@ -8507,7 +8530,12 @@ function initializeApp() {
             return;
         }
         if (!validateDistanceInput()) {
-            alert('Некорректная дальность! Проверьте введенное значение.');
+            const auto = document.getElementById('auto-charge-toggle').checked;
+            if (auto) {
+                alert('Введенная дальность не попадает в диапазоны зарядов');
+            } else {
+                alert('Некорректная дальность! Проверьте введенное значение.');
+            }
             return;
         }
         let dist = parseFloat(document.getElementById('distance').value);
