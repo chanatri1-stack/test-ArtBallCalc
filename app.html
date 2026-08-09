@@ -7,7 +7,7 @@
     <meta http-equiv="Pragma" content="no-cache">
     <meta http-equiv="Expires" content="0">
     
-    <meta name="app-version" content="8.8.46">
+    <meta name="app-version" content="8.8.47">
     
     <title>Арт. баллистический калькулятор</title>
     
@@ -847,7 +847,7 @@
             color: var(--primary);
             font-size: 0.75rem;
             margin-top: 16px;
-            opacity: 0.6;
+            opacity: 0.8;
             text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
         }
         
@@ -982,11 +982,31 @@
         
         .version-info {
             text-align: center;
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
             color: var(--primary);
             font-size: 0.7rem;
-            padding: 8px 0 4px 0;
-            opacity: 0.5;
+            opacity: 0.7;
             letter-spacing: 0.5px;
+            text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
+        }
+        
+        footer {
+            background: var(--card-bg);
+            backdrop-filter: blur(8px);
+            -webkit-backdrop-filter: blur(8px);
+            border-radius: 20px;
+            padding: 10px 16px;
+            border: 1px solid rgba(255, 255, 255, 0.3);
+            text-align: center;
+            color: var(--primary);
+            font-size: 0.75rem;
+            margin-top: 16px;
+            opacity: 0.8;
             text-shadow: 0 1px 2px rgba(255, 255, 255, 0.5);
         }
     </style>
@@ -1006,7 +1026,7 @@
         <div class="progress-bar">
             <div class="fill" id="progress-fill"></div>
         </div>
-        <div class="version" id="loading-version">Версия: 8.8.46</div>
+        <div class="version" id="loading-version">Версия: 8.8.47</div>
     </div>
 </div>
 
@@ -1018,8 +1038,8 @@
         <p>Обновите приложение</p>
         
         <div class="version-info">
-            <span>Текущая версия: <span id="update-current-version">8.8.46</span></span>
-            <span class="new">Новая версия: <span id="update-new-version">8.8.46</span></span>
+            <span>Текущая версия: <span id="update-current-version">8.8.47</span></span>
+            <span class="new">Новая версия: <span id="update-new-version">8.8.47</span></span>
         </div>
         
         <p style="font-size:13px; color:#999; margin-top:12px;">
@@ -1186,7 +1206,7 @@
             </div>
         </div>
         
-        <div class="version-info" id="appVersionDisplay">Версия: 8.8.46</div>
+        <div class="version-info" id="appVersionDisplay">Версия: 8.8.47</div>
         
         <footer>Создан Романовым А. В. / моб. версия</footer>
     </div>
@@ -1225,7 +1245,7 @@ const SECRET_KEY = SECRET_KEY_PART1 + SECRET_KEY_PART2;
 // ====================================================================
 
 const APP_PIN = '1488';
-const APP_VERSION = '8.8.46';
+const APP_VERSION = '8.8.47';
 
 // ====================================================================
 // ==================== ДАННЫЕ (ОСТАВЛЕНЫ ПУСТЫМИ) ===================
@@ -7951,6 +7971,11 @@ function initializeApp() {
         let errorMsg = '';
         let minD = 0, maxD = 0;
 
+        // ОЧИЩАЕМ ПРЕДЫДУЩИЕ СООБЩЕНИЯ ОБ ОШИБКЕ
+        errorDiv.classList.remove('show');
+        distInput.classList.remove('error');
+        rangeDiv.className = 'range-indicator';
+
         if (!hasWeaponData()) {
             distInput.classList.add('error');
             errorDiv.innerText = '⚠️ Нет данных для выбранного орудия. Заполните mortarData или flatData.';
@@ -7965,7 +7990,6 @@ function initializeApp() {
 
         if (auto) {
             // При автоподборе проверяем попадание в диапазон хотя бы одного заряда
-            // Для мортирной наводки - особое сообщение
             if (isNaN(rawValue)) {
                 isValid = false;
                 errorMsg = 'Введите числовое значение';
@@ -7979,13 +8003,13 @@ function initializeApp() {
                 }
             }
             
-            // Если дальность корректна, показываем глобальный диапазон
+            // Показываем информацию в range-indicator (без дублирования ошибки)
             if (isValid && !isNaN(rawValue)) {
                 const global = getGlobalRange();
                 rangeDiv.innerHTML = `Диапазон зарядов: ${global.min} - ${global.max} м ✅`;
                 rangeDiv.className = 'range-indicator';
             } else if (!isValid && !isNaN(rawValue)) {
-                // Невалидная дальность - показываем сообщение
+                // Невалидная дальность - показываем сообщение в range-indicator
                 const global = getGlobalRange();
                 if (isMortar) {
                     rangeDiv.innerHTML = `Введенная дальность не попадает в диапазоны зарядов ❌`;
@@ -8034,7 +8058,8 @@ function initializeApp() {
             }
         }
 
-        if (!isValid) {
+        // Показываем ошибку только если она есть И поле не пустое
+        if (!isValid && errorMsg) {
             distInput.classList.add('error');
             errorDiv.innerText = errorMsg;
             errorDiv.classList.add('show');
@@ -8210,7 +8235,6 @@ function initializeApp() {
             let row = tbody.insertRow();
             row.style.cursor = 'pointer';
             row.addEventListener('click', () => showDetailModal(e));
-            // В столбце "Элев." всегда показываем итоговый элеватор (число)
             row.innerHTML = `<td>${e.weapon}</td><td>${Math.round(e.distance)}</td><td>${e.charge}</td><td>${e.elevation}</td><td>${e.flightTime || 0} сек</td>`;
         });
     }
@@ -8554,14 +8578,11 @@ function initializeApp() {
             let closest = profiles.reduce((p, c) => Math.abs(c.elev - res.elevation) < Math.abs(p.elev - res.elevation) ? c : p);
             let delay = Math.min(8, Math.max(1, Math.round((2 / 3 * res.flightTime) / 6)));
             
-            // Заполняем основные поля Краснополя
             document.getElementById('redpoly-charge').innerText = res.charge;
             document.getElementById('redpoly-flight-time').innerText = res.flightTime + ' сек';
-            // В элеваторе показываем итоговое число
             document.getElementById('redpoly-elevator').innerText = res.elevation;
             document.getElementById('redpoly-delay').innerText = delay;
             
-            // Формируем блок тумблеров
             const tumblerContainer = document.getElementById('redpoly-tumblers');
             tumblerContainer.innerHTML = '';
             
@@ -8591,7 +8612,6 @@ function initializeApp() {
             document.getElementById('results-redpoly').classList.add('active');
             document.getElementById('results-mortar').classList.remove('active');
             
-            // Добавляем в историю с отдельными полями для тумблеров
             addToHistory(res, 'Краснополь', { 
                 profileTumbler: closest.t,
                 delayTumbler: delay
